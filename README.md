@@ -134,5 +134,5 @@ should be written into its own `.c` file*, and I will merge them once first vers
 - [ ] Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?)
 - [ ] Write `zero_page()`
 - [ ] Write proper versions of the above functions that handle errors correctly.
-- [ ] Write stub code to transition into virtual addressing for the kernel by using the page table created by `map_all_devices()`.
+- [ ] Write stub code to transition into virtual addressing for the kernel by using the page table created by `map_all_devices()`. - **kbarrett27**
 - [ ] Choose a kernel from Project-2 as a starting point to which to add these functions.
