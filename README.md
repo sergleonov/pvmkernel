@@ -130,9 +130,9 @@ Each member of this group should add their username (e.g., `sfkaplan`) at the en
 take on a task as a pair with someone else in the group.  *To avoid having everyone trying to edit the same file, each new function
 should be written into its own `.c` file*, and I will merge them once first versions of them are done.
 
-- [ ] Write the high-level `map_all_devices()` to create the page table of identity mappings.
-- [ ] Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?)
-- [ ] Write `zero_page()` - test
+- [ ] Write the high-level `map_all_devices()` to create the page table of identity mappings. - madi + deshan
+- [ ] Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) - crawford + sergei
+- [ ] Write `zero_page()`
 - [ ] Write proper versions of the above functions that handle errors correctly.
 - [ ] Write stub code to transition into virtual addressing for the kernel by using the page table created by `map_all_devices()`. - **kbarrett27**
 - [ ] Choose a kernel from Project-2 as a starting point to which to add these functions.
