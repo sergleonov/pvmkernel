@@ -193,8 +193,6 @@ void process_head_init(){
   process_head->sp = NULL;
   process_head->pc = NULL;
   process_head->pid = NULL;
-  process_head->base = NULL;
-  process_head->limit = NULL;
 }
 
 void jump_to_next_ROM(process_info_s* curr){
@@ -213,26 +211,36 @@ void run_ROM(word_t next_ROM){
     print("Process not found\n");
     return;
   }
+  
+  // assuming program size of 32KB, make list of pages for program
+  address_t* program_page_list = heap_alloc(sizeof(address_t));
 
-  address_t addr = ram_alloc();
-  if (addr == 0) {
-    print("No more RAM space.\n");
-    syscall_handler_halt();
+  for (int i = 0; i < 8; i++){
+    program_page_list[i] = ram_alloc();
+    if (program_page_list[i] == 0) {
+      print("No more RAM space.\n");
+      syscall_handler_halt();
+    }
   }
+
   print("Running program...\n");
   /* Copy the program into the free RAM space after the kernel. */
-  DMA_portal_ptr->src    = dt_ROM_ptr->base;
-  DMA_portal_ptr->dst    = addr;
-  DMA_portal_ptr->length = dt_ROM_ptr->limit - dt_ROM_ptr->base; // Trigger
+
+  address_t curr_ROM_place = dt_ROM_ptr->base;
+  for (int i = 0; i < 8; i++){
+    DMA_portal_ptr->src    = curr_ROM_place + i * page_size;
+    DMA_portal_ptr->dst    = program_page_list[i];
+    DMA_portal_ptr->length = page_size; // Trigger
+  }
+
   
   // adding process info to the process list
   process_info_s* process = heap_alloc(sizeof(*process));
   process->pid = next_ROM;
-  process->base = addr;
-  process->limit = addr + program_size;
-  process->sp = addr + program_size;
-  process->pc = addr;
-  
+  process->page_list_base = program_page_list;
+  process->sp = program_size;
+  process->pc =NULL;
+  process->curr_page_idx = 0;
  
   curr_process = process;
   CIRC_INSERT(process_head, process);
@@ -254,8 +262,11 @@ void run_programs () {
 void end_process(){
   
   print("Ending current process...");
-  // free the RAM block
-  ram_free(curr_process->base);
+  // free the RAM blocks
+  for (int i = 0; i < 8; i++){
+    ram_free(curr_process->page_list_base[i]);
+  }
+
   // preserve the local pointer of the prcoess being removed
   process_info_s* tmp = curr_process; 
   // update current process to the next one
@@ -286,9 +297,9 @@ void end_process(){
 
 void update_curr_process(address_t sp, address_t pc){
 
-        curr_process->sp = sp + curr_process->base;
-        curr_process->pc = pc + curr_process->base;
-
+        curr_process->curr_page_idx = (int)(pc / page_size);
+        curr_process->sp = sp + curr_process->page_list_base[curr_process->curr_page_idx];
+        curr_process->pc = pc + curr_process->page_list_base[curr_process->curr_page_idx];
 }
 
 void alarm_next_program(){
@@ -313,14 +324,14 @@ address_t get_base(){
   if (curr_process->pc == 0){
     curr_process = process_head->next;
   }
-      return  curr_process->base;
+      return  curr_process->page_list_base[curr_process->curr_page_idx];
 }
 
 address_t get_limit(){
   if (curr_process->pc == 0){
     curr_process = process_head->next;
   }
-  return  curr_process->limit;
+  return  curr_process->page_list_base[curr_process->curr_page_idx] + page_size;
 }
 
 

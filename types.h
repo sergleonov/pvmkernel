@@ -31,11 +31,10 @@ typedef struct process_info {
   struct process_info* next;
   struct process_info* prev;
   word_t        pid;
-  address_t    base;
-  address_t    limit;
+  address_t*    page_list_base;
   word_t        pc;
   word_t        sp;
-
+  word_t        curr_page_idx;
 } process_info_s;
 
 typedef struct header {
