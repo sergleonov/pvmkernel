@@ -193,6 +193,7 @@ void process_head_init(){
   process_head->sp = NULL;
   process_head->pc = NULL;
   process_head->pid = NULL;
+  process_head->curr_page_idx = NULL;
 }
 
 void jump_to_next_ROM(process_info_s* curr){
@@ -215,7 +216,7 @@ void run_ROM(word_t next_ROM){
   // assuming program size of 32KB, make list of pages for program
   address_t* program_page_list = heap_alloc(sizeof(address_t));
 
-  for (int i = 0; i < 8; i++){
+  for (int i = 0; i < (int)(program_size/page_size); i++){
     program_page_list[i] = ram_alloc();
     if (program_page_list[i] == 0) {
       print("No more RAM space.\n");
@@ -227,7 +228,7 @@ void run_ROM(word_t next_ROM){
   /* Copy the program into the free RAM space after the kernel. */
 
   address_t curr_ROM_place = dt_ROM_ptr->base;
-  for (int i = 0; i < 8; i++){
+  for (int i = 0; i < (int)(program_size/page_size); i++){
     DMA_portal_ptr->src    = curr_ROM_place + i * page_size;
     DMA_portal_ptr->dst    = program_page_list[i];
     DMA_portal_ptr->length = page_size; // Trigger
@@ -263,7 +264,7 @@ void end_process(){
   
   print("Ending current process...");
   // free the RAM blocks
-  for (int i = 0; i < 8; i++){
+  for (int i = 0; i < (int)(program_size/page_size); i++){
     ram_free(curr_process->page_list_base[i]);
   }
 
