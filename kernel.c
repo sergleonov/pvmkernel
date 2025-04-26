@@ -32,6 +32,7 @@ static process_info_s* curr_process = NULL;
 extern address_t statics_limit;
 /* The current limit of the heap. */
 static address_t heap_limit = (address_t)NULL;
+static word_t page_size = 0x1000;
 static word_t program_size = 0x8000;
 /* A pair of sentinels to the free list, making the coding easier. */
  header_s free_head = { .next = NULL, .prev = NULL, .size = 0 };
@@ -158,7 +159,7 @@ void ram_init(){
   RAM_head->val = kernel_limit;
   RAM_head->next = NULL;
   RAM_head->prev = NULL;
-  for (address_t i = kernel_limit + program_size; i < RAM_limit; i+=program_size){
+  for (address_t i = kernel_limit + page_size; i < RAM_limit; i+=page_size){
     address_link_s* node = (address_link_s*)heap_alloc(sizeof(*node));
     node->val = i; 
     node->next = NULL;
@@ -228,8 +229,8 @@ void run_ROM(word_t next_ROM){
   process_info_s* process = heap_alloc(sizeof(*process));
   process->pid = next_ROM;
   process->base = addr;
-  process->limit = addr + 0x8000;
-  process->sp = addr + 0x8000;
+  process->limit = addr + program_size;
+  process->sp = addr + program_size;
   process->pc = addr;
   
  
