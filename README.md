@@ -132,7 +132,7 @@ should be written into its own `.c` file*, and I will merge them once first vers
 
 - [ ] Write the high-level `map_all_devices()` to create the page table of identity mappings. - madi + deshan
 - [ ] Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) - crawford + sergei
-- [ ] Write `zero_page()` 
+- [ ] Write `zero_page()` - luis
 - [ ] Write proper versions of the above functions that handle errors correctly.- sherlyn, mayisa and lindsay
 - [ ] Write stub code to transition into virtual addressing for the kernel by using the page table created by `map_all_devices()`. - **kbarrett27**
-- [ ] Choose a kernel from Project-2 as a starting point to which to add these functions.
+- [ ] Choose a kernel from Project-2 as a starting point to which to add these functions. - I nominate Prof. Kaplan
