@@ -351,8 +351,10 @@ do_exit:
 ### Procedure: syscall_handler
 
 syscall_handler:	
-
-	csrw 	md,		zero
+	
+	# reset mode register
+	addi  	t0, 	12
+	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
 	csrr 	t1, 	epc
@@ -392,13 +394,13 @@ syscall_handler:
 
 handle_run:
 	
-	mv a0, a1
-	call run_ROM
-	j syscall_handler_halt
+	mv 		a0, 	a1
+	call 	run_ROM
+	j 		syscall_handler_halt
 
 handle_print:
 
-	mv a0, a1
+	mv 		a0, 	a1
 
 	# preserve address of string
 	addi 	sp, 	sp, 	-4
@@ -439,7 +441,9 @@ syscall_handler_halt:
 
 alarm_handler:
 
-	csrw 	md, 	zero
+	# reset mode register
+	addi  	t0, 	12
+	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
 	csrr 	t1, 	epc
@@ -470,7 +474,9 @@ alarm_handler:
 
 default_handler:
 
-	csrw 	md, 	zero
+	# reset mode register
+	addi  	t0, 	12
+	csrw 	md,		t0
 	# If we are here, we probably want to look around.
 	ebreak
 	
@@ -556,7 +562,7 @@ userspace_jump:
 	csrw 	al,		t0
 
 	# enable alarm and virtual addressing
-	addi 	t0,		zero, 	20
+	addi 	t0,		zero, 	28
 	csrw 	md,		t0
 	#load base and limit values to bs and lm, for mmu
 	#activate virtual addressing and alarm and then jump
@@ -614,6 +620,16 @@ main_with_console:
 	call		init_trap_table
 	la		a0,		done_msg					# arg[0] = done_msg
 	call		print
+
+	## Transition into virtual addressing 
+	la 		a0, 	initialzing_kernel_pt_msg
+	call 	print
+	call 	create_kernel_upt
+	csrw 	pt, 	a0
+	addi 	t0, 	zero, 	12
+	csrw 	md, 	t0
+	la 		a0, 	done_msg
+	call 	print
 
 	## Call ram_init()
 	la 		a0, 	initializing_ram_list_msg
@@ -731,6 +747,7 @@ no_programs_msg:		"ERROR: No programs provided.\n"
 default_handler_msg:		"Default interrupt handler invoked.\n"
 initializing_ram_list_msg:  "Initializing RAM free block..."
 initializing_process_head_msg: "Initializing process list head..."
+initialzing_kernel_pt_msg:  	"Initializing kernel upper page table..."
 done_msg:			"done.\n"
 failed_msg:			"failed!\n"
 blank_line:			"                                                                                "

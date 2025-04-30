@@ -45,4 +45,11 @@ typedef struct header {
   
 } header_s;
 
+/* Define a type for each entry of an upper page-table. */
+typedef address_t upt_entry_t;
+
+/* Define a type for each entry in the lower page-table. */
+typedef address_t pte_t;
+
+
 #endif /* _TYPES_H */
