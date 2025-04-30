@@ -145,7 +145,7 @@ should be written into its own `.c` file*, and I will merge them once first vers
 | Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) | Crawford + Sergei |
 | Write `zero_page()` | Luis Arciniega |
 | Write proper versions of the above functions that handle errors correctly | Sherlyn, Mayisa and Lindsay |
-| Write stub code to transition into virtual addressing for the kernel | Katherine Barrett |
+| Write stub code to transition into virtual addressing for the kernel | Kaleb Barrett |
 | Choose a kernel from Project-2 as a starting point | Teamwork! |
 
 ## Authors
@@ -155,7 +155,7 @@ should be written into its own `.c` file*, and I will merge them once first vers
 | Ayaan Han | ahan27@amherst.edu |
 | Deshan Dawson | ddawson27@amherst.edu |
 | Dillon Demel | ddemel27@amherst.edu |
-| Katherine Barrett | kbarrett27@amherst.edu |
+| Kaleb Barrett | kbarrett27@amherst.edu |
 | Luis Arciniega | larciniega27@amherst.edu |
 | Lindsay Ward | lward25@amherst.edu |
 | Madison Bailey | mbailey26@amherst.edu |
