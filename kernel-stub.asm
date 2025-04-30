@@ -539,14 +539,9 @@ userspace_jump:
 	addi		sp,		sp,		-4
 	sw			a0,		0(sp)
 
-	call get_base
-	csrw	bs,		a0
 	lw		t0,		0(sp)
 	sub		a0,		t0,		a0
 	csrw		epc,		a0
-
-	call get_limit
-	csrw	lm,		a0
 	
 	call restore_sp
 	add		sp,			zero, 			a0
