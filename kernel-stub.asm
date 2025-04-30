@@ -620,6 +620,12 @@ main_with_console:
 	la		a0,		done_msg					# arg[0] = done_msg
 	call		print
 
+	## Transition into virtual addressing 
+	call create_kernel_upt
+	csrw pt, a0
+	addi t0, zero, 12
+	csrw md, t0
+
 	## Call ram_init()
 	la 		a0, 	initializing_ram_list_msg
 	call 	print
