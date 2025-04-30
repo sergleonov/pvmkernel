@@ -153,8 +153,8 @@ should be written into its own `.c` file*, and I will merge them once first vers
 | Name | Email |
 |------|-------|
 | Ayaan Han | ahan27@amherst.edu |
-| Deshan Dawson | ddawson27@amherst.edu |
-| Dillon Demel | ddemel27@amherst.edu |
+| Dillon Dawson | ddawson27@amherst.edu |
+| Deshan de Mel | ddemel27@amherst.edu |
 | Kaleb Barrett | kbarrett27@amherst.edu |
 | Luis Arciniega | larciniega27@amherst.edu |
 | Lindsay Ward | lward25@amherst.edu |
