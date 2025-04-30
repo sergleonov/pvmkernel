@@ -132,7 +132,35 @@ should be written into its own `.c` file*, and I will merge them once first vers
 
 - [ ] Write the high-level `map_all_devices()` to create the page table of identity mappings. - madi + deshan
 - [ ] Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) - crawford + sergei
-- [ ] Write `zero_page()` - luis
+- [ ] Write `zero_page()` - **larciniega27**
 - [ ] Write proper versions of the above functions that handle errors correctly.- sherlyn, mayisa and lindsay
 - [ ] Write stub code to transition into virtual addressing for the kernel by using the page table created by `map_all_devices()`. - **kbarrett27**
-- [ ] Choose a kernel from Project-2 as a starting point to which to add these functions. - I nominate Prof. Kaplan
+- [ ] Choose a kernel from Project-2 as a starting point to which to add these functions. - **larciniega27**
+
+## Tasks
+
+| Task | Team |
+|------|-------------|
+| Write the high-level `map_all_devices()` to create the page table of identity mappings | Madi + Deshan |
+| Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) | Crawford + Sergei |
+| Write `zero_page()` | Luis Arciniega |
+| Write proper versions of the above functions that handle errors correctly | Sherlyn, Mayisa and Lindsay |
+| Write stub code to transition into virtual addressing for the kernel | Katherine Barrett |
+| Choose a kernel from Project-2 as a starting point | Luis Arciniega 😭 |
+
+## Authors
+
+| Name | Email |
+|------|-------|
+| Ayaan Han | ahan27@amherst.edu |
+| Deshan Dawson | ddawson27@amherst.edu |
+| Dillon Demel | ddemel27@amherst.edu |
+| Katherine Barrett | kbarrett27@amherst.edu |
+| Luis Arciniega | larciniega27@amherst.edu |
+| Lindsay Ward | lward25@amherst.edu |
+| Madison Bailey | mbailey26@amherst.edu |
+| Madi Gudin | mgudin27@amherst.edu |
+| Mayisa Tasnim | mtasnim27@amherst.edu |
+| Scott Kaplan | sfkaplan@amherst.edu |
+| Sergei Leonov | sleonov27@amherst.edu |
+| Sherlyn Saavedra | ssaavedra27@amherst.edu |
