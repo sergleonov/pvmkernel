@@ -1193,7 +1193,7 @@ create_kernel_upt:
 	call	find_last_device 
 	lw	a0, 8(a0) 
 	sw	a0, -20(s0) 
-	li	a0, 7 
+	li	a0, 31 
 	sw	a0, -24(s0) 
 	lw	a0, -16(s0) 
 	sw	a0, -28(s0) 
@@ -1205,8 +1205,7 @@ kernel_LBB21_1:
 	j	kernel_LBB21_2 
 kernel_LBB21_2:
 	lw	a0, -28(s0) 
-	lw	a1, -24(s0) 
-	or	a0, a0, a1 
+	ori	a0, a0, 1023 
 	sw	a0, -32(s0) 
 	lw	a0, -12(s0) 
 	lw	a1, -28(s0) 

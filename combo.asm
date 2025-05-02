@@ -353,7 +353,7 @@ do_exit:
 syscall_handler:	
 	
 	# reset mode register
-	addi  	t0, 	zero,		12
+	addi  	t0, zero,	12
 	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
@@ -475,7 +475,7 @@ alarm_handler:
 default_handler:
 
 	# reset mode register
-	addi  	t0, 	zero,   12
+	addi  	t0, zero, 	12
 	csrw 	md,		t0
 	# If we are here, we probably want to look around.
 	ebreak
@@ -1957,7 +1957,7 @@ create_kernel_upt:
 	call	find_last_device 
 	lw	a0, 8(a0) 
 	sw	a0, -20(s0) 
-	li	a0, 7 
+	li	a0, 31 
 	sw	a0, -24(s0) 
 	lw	a0, -16(s0) 
 	sw	a0, -28(s0) 
@@ -1969,8 +1969,7 @@ kernel_LBB21_1:
 	j	kernel_LBB21_2 
 kernel_LBB21_2:
 	lw	a0, -28(s0) 
-	lw	a1, -24(s0) 
-	or	a0, a0, a1 
+	ori	a0, a0, 1023 
 	sw	a0, -32(s0) 
 	lw	a0, -12(s0) 
 	lw	a1, -28(s0) 

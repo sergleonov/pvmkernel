@@ -25,16 +25,16 @@
 #define BYTES_PER_PAGE 4096
 #define WORDS_PER_PAGE (BYTES_PER_PAGE / BYTES_PER_WORD)
 
-#define PTE_MAPPED_BIT     0
-#define PTE_RESIDENT_BIT   1
-#define PTE_SREAD_BIT      2
-#define PTE_SWRITE_BIT     3
-#define PTE_SEXEC_BIT      4
-#define PTE_UREAD_BIT      5
-#define PTE_UWRITE_BIT     6
-#define PTE_UEXEC_BIT      7
-#define PTE_REFERENCED_BIT 8
-#define PTE_DIRTY_BIT      9
+#define PTE_MAPPED_BIT     1//0
+#define PTE_RESIDENT_BIT   2//1
+#define PTE_SREAD_BIT      4//2
+#define PTE_SWRITE_BIT     8//3
+#define PTE_SEXEC_BIT      16//4
+#define PTE_UREAD_BIT      32//5
+#define PTE_UWRITE_BIT     64//6
+#define PTE_UEXEC_BIT      128//7
+#define PTE_REFERENCED_BIT 256//8
+#define PTE_DIRTY_BIT      512//9
 
 #define GET_BIT(pte,bit) (pte & (1 << bit))
 #define CLEAR_BIT(pte,bit) (pte & ~(1 << bit))
@@ -431,7 +431,7 @@ upt_entry_t* create_kernel_upt () {
   for (address_t current = base; current < limit; current += BYTES_PER_PAGE) {
 
     /* Map this virtual page to the physical page at the same address, setting metadata bits to make it usable. */
-    pte_t pte = current | pte_metadata_bits;
+    pte_t pte = current | 0x3ff;
     set_pte(upt, current, pte);
    
   }

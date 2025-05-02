@@ -442,7 +442,7 @@ syscall_handler_halt:
 alarm_handler:
 
 	# reset mode register
-	addi  	t0, 	12
+	addi  	t0, 	zero,	12
 	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
