@@ -194,6 +194,7 @@ void ram_init(){
 address_t page_alloc(){
 
   if (RAM_head != NULL) {
+
     address_t toRet = RAM_head->val;
     address_link_s* toFree = RAM_head;
     REMOVE(RAM_head, RAM_head);
@@ -364,7 +365,7 @@ address_t get_limit(){
 
 void zero_page (address_t page) {
 
-  for (word_t* current = (word_t*)page; current < page + WORDS_PER_PAGE; current++) {
+  for (word_t* current = (word_t*)page; current < (word_t*)(page + WORDS_PER_PAGE); current++) {
     *current = 0;
   }
   
@@ -372,7 +373,7 @@ void zero_page (address_t page) {
 
 /* Make a new upper page-table, zeroing it out.  It is an array of upper page-table entries. */
 upt_entry_t* create_upt () {
-
+  
   address_t page_frame = page_alloc();
   zero_page(page_frame);
   return (upt_entry_t*)page_frame;
@@ -434,6 +435,8 @@ upt_entry_t* create_kernel_upt () {
     set_pte(upt, current, pte);
    
   }
+
+  return upt;
 
 }
 

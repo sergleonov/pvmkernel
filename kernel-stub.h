@@ -38,6 +38,8 @@ void syscall_handler_halt();
  */
 void print (char* msg);
 
+extern void ebreak_wrap();
+
 extern uint32_t none_device_code;
 extern uint32_t controller_device_code;
 extern uint32_t ROM_device_code;

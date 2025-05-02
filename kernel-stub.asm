@@ -353,7 +353,7 @@ do_exit:
 syscall_handler:	
 	
 	# reset mode register
-	addi  	t0, 	12
+	addi  	t0, 	zero,		12
 	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
@@ -442,7 +442,7 @@ syscall_handler_halt:
 alarm_handler:
 
 	# reset mode register
-	addi  	t0, 	12
+	addi  	t0, 	zero,	12
 	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
@@ -475,7 +475,7 @@ alarm_handler:
 default_handler:
 
 	# reset mode register
-	addi  	t0, 	12
+	addi  	t0, 	zero,   12
 	csrw 	md,		t0
 	# If we are here, we probably want to look around.
 	ebreak
@@ -569,6 +569,11 @@ userspace_jump:
 	eret
 ### ================================================================================================================================
 	
+
+ebreak_wrap:
+	ebreak
+	ret
+
 	
 ### ================================================================================================================================
 ### Procedure: main
@@ -613,6 +618,7 @@ main_with_console:
 	la		a0,		attribution_msg					# arg[0] = attribution_msg
 	call		print
 
+
 	## Call init_trap_table(), then finally restore the frame.
 	la		a0,		initializing_tt_msg				# arg[0] = initializing_tt_msg
 	call		print
@@ -621,15 +627,7 @@ main_with_console:
 	la		a0,		done_msg					# arg[0] = done_msg
 	call		print
 
-	## Transition into virtual addressing 
-	la 		a0, 	initialzing_kernel_pt_msg
-	call 	print
-	call 	create_kernel_upt
-	csrw 	pt, 	a0
-	addi 	t0, 	zero, 	12
-	csrw 	md, 	t0
-	la 		a0, 	done_msg
-	call 	print
+
 
 	## Call ram_init()
 	la 		a0, 	initializing_ram_list_msg
@@ -637,6 +635,18 @@ main_with_console:
 	call 	ram_init
 	la 		a0, 	done_msg
 	call 	print
+
+		## Transition into virtual addressing 
+	la 		a0, 	initialzing_kernel_pt_msg
+	call 	print
+	call 	create_kernel_upt
+	ebreak
+	csrw 	pt, 	a0
+	addi 	t0, 	zero, 	12
+	csrw 	md, 	t0
+	la 		a0, 	done_msg
+	call 	print
+	ebreak
 
 	## Call process_head_init()
 	la 		a0, 	initializing_process_head_msg
