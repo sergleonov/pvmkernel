@@ -73,7 +73,7 @@ static word_t program_size = 0x8000;
 
 upt_entry_t* create_upt ();
 upt_entry_t* create_process_upt(upt_entry_t* kernel_upt);
-
+void set_pte (upt_entry_t* upt, address_t vpage_addr, word_t pte);
 
 /* =============================================================================================================================== */
 
@@ -267,6 +267,12 @@ void run_ROM(word_t next_ROM){
   print("Running program...\n");
   /* Copy the program into the free RAM space after the kernel. */
 
+  // Start the process info struct
+  process_info_s* process = heap_alloc(sizeof(*process));
+  ebreak_wrap();
+  process_head->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
+  ebreak_wrap();
+  
   address_t curr_ROM_place = dt_ROM_ptr->base;
   for (int i = 0; i < (int)(program_size/page_size); i++){
     DMA_portal_ptr->src    = curr_ROM_place + i * page_size;
@@ -276,7 +282,6 @@ void run_ROM(word_t next_ROM){
 
   
   // adding process info to the process list
-  process_info_s* process = heap_alloc(sizeof(*process));
   process->pid = next_ROM;
   process->page_list_base = program_page_list;
   process->sp = program_size;
@@ -445,7 +450,7 @@ upt_entry_t* create_kernel_upt () {
   for (address_t current = base; current < limit; current += BYTES_PER_PAGE) {
 
     /* Map this virtual page to the physical page at the same address, setting metadata bits to make it usable. */
-    pte_t pte = current | 0x3ff;
+    pte_t pte = current | pte_metadata_bits;
     set_pte(upt, current, pte);
    
   }
