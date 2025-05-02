@@ -231,8 +231,8 @@ address_t process_head_init(){
   process_head->pc = NULL;
   process_head->pid = NULL;
   process_head->curr_page_idx = NULL;
+  process_head->pt_ptr = NULL;
 
-  process_head->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
   return (address_t) process_head;
 }
 
@@ -269,10 +269,9 @@ void run_ROM(word_t next_ROM){
 
   // Start the process info struct
   process_info_s* process = heap_alloc(sizeof(*process));
+  process->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
   ebreak_wrap();
-  process_head->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
-  ebreak_wrap();
-  
+
   address_t curr_ROM_place = dt_ROM_ptr->base;
   for (int i = 0; i < (int)(program_size/page_size); i++){
     DMA_portal_ptr->src    = curr_ROM_place + i * page_size;
@@ -410,12 +409,12 @@ void set_pte (upt_entry_t* upt, address_t vpage_addr, word_t pte) {
     /* No, so create it. */
     address_t page_frame = page_alloc();
     zero_page(page_frame);
-    upt[upt_index] = page_frame;
+    upt[upt_index] = page_frame | 0x3ff;
     
   }
 
   /* Index into the LPT. */
-  pte_t* lpt       = (pte_t*)upt[upt_index];
+  pte_t* lpt       = (pte_t*)(upt[upt_index] & 0xfffff000);
   word_t lpt_index = LPT_INDEX(vpage_addr);
   lpt[lpt_index]   = pte;
 

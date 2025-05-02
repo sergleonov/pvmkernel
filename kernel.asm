@@ -441,77 +441,29 @@ process_head_init:
 	addi	s0, sp, 16 
 	li	a0, 32 
 	call	heap_alloc 
-kernel_autoL29:
-	auipc	a1, %hi(%pcrel(process_head))
-	sw	a1, -12(s0) # 4-byte Folded Spill 
-	sw	a0, %lo(%larel(process_head,kernel_autoL29))(a1)
-	lw	a0, %lo(%larel(process_head,kernel_autoL29))(a1)
-	sw	a0, 4(a0) 
-	lw	a0, %lo(%larel(process_head,kernel_autoL29))(a1)
-	sw	a0, 0(a0) 
-	lw	a2, %lo(%larel(process_head,kernel_autoL29))(a1)
-	li	a0, 0 
-	sw	a0, 24(a2) 
-	lw	a2, %lo(%larel(process_head,kernel_autoL29))(a1)
-	sw	a0, 20(a2) 
-	lw	a2, %lo(%larel(process_head,kernel_autoL29))(a1)
-	sw	a0, 8(a2) 
-	lw	a1, %lo(%larel(process_head,kernel_autoL29))(a1)
-	sw	a0, 28(a1) 
-kernel_autoL30:
-	auipc	a0, %hi(%pcrel(kernel_upt_ptr))
-	lw	a0, %lo(%larel(kernel_upt_ptr,kernel_autoL30))(a0)
-	call	create_process_upt 
 	mv	a1, a0 
-	lw	a0, -12(s0) # 4-byte Folded Reload 
+kernel_autoL29:
+	auipc	a0, %hi(%pcrel(process_head))
+	sw	a1, %lo(%larel(process_head,kernel_autoL29))(a0)
+	lw	a1, %lo(%larel(process_head,kernel_autoL29))(a0)
+	sw	a1, 4(a1) 
+	lw	a1, %lo(%larel(process_head,kernel_autoL29))(a0)
+	sw	a1, 0(a1) 
 	lw	a2, %lo(%larel(process_head,kernel_autoL29))(a0)
-	sw	a1, 16(a2) 
+	li	a1, 0 
+	sw	a1, 24(a2) 
+	lw	a2, %lo(%larel(process_head,kernel_autoL29))(a0)
+	sw	a1, 20(a2) 
+	lw	a2, %lo(%larel(process_head,kernel_autoL29))(a0)
+	sw	a1, 8(a2) 
+	lw	a2, %lo(%larel(process_head,kernel_autoL29))(a0)
+	sw	a1, 28(a2) 
 	lw	a0, %lo(%larel(process_head,kernel_autoL29))(a0)
 	lw	ra, 12(sp) # 4-byte Folded Reload 
 	lw	s0, 8(sp) # 4-byte Folded Reload 
 	addi	sp, sp, 16 
 	ret	
 kernel_Lfunc_end7:
-	#	-- End function 
-create_process_upt:
-	#	%bb.0: 
-	addi	sp, sp, -32 
-	sw	ra, 28(sp) # 4-byte Folded Spill 
-	sw	s0, 24(sp) # 4-byte Folded Spill 
-	addi	s0, sp, 32 
-	sw	a0, -12(s0) 
-	call	create_upt 
-	sw	a0, -16(s0) 
-	li	a0, 0 
-	sw	a0, -20(s0) 
-	j	kernel_LBB8_1 
-kernel_LBB8_1:
-	lw	a1, -20(s0) 
-	li	a0, 511 
-	blt	a0, a1, kernel_LBB8_4 
-	j	kernel_LBB8_2 
-kernel_LBB8_2:
-	lw	a0, -12(s0) 
-	lw	a1, -20(s0) 
-	slli	a2, a1, 2 
-	add	a0, a0, a2 
-	lw	a0, 0(a0) 
-	lw	a1, -16(s0) 
-	add	a1, a1, a2 
-	sw	a0, 0(a1) 
-	j	kernel_LBB8_3 
-kernel_LBB8_3:
-	lw	a0, -20(s0) 
-	addi	a0, a0, 4 
-	sw	a0, -20(s0) 
-	j	kernel_LBB8_1 
-kernel_LBB8_4:
-	lw	a0, -16(s0) 
-	lw	ra, 28(sp) # 4-byte Folded Reload 
-	lw	s0, 24(sp) # 4-byte Folded Reload 
-	addi	sp, sp, 32 
-	ret	
-kernel_Lfunc_end8:
 	#	-- End function 
 jump_to_next_ROM:
 	#	%bb.0: 
@@ -527,7 +479,7 @@ jump_to_next_ROM:
 	lw	s0, 8(sp) # 4-byte Folded Reload 
 	addi	sp, sp, 16 
 	ret	
-kernel_Lfunc_end9:
+kernel_Lfunc_end8:
 	#	-- End function 
 run_ROM:
 	#	%bb.0: 
@@ -536,9 +488,9 @@ run_ROM:
 	sw	s0, 56(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 64 
 	sw	a0, -12(s0) 
-kernel_autoL31:
+kernel_autoL30:
 	auipc	a0, %hi(%pcrel(kernel_L.str))
-	addi	a0, a0, %lo(%larel(kernel_L.str,kernel_autoL31))
+	addi	a0, a0, %lo(%larel(kernel_L.str,kernel_autoL30))
 	call	print 
 	lw	a0, -12(s0) 
 	addi	a1, s0, -21 
@@ -546,44 +498,44 @@ kernel_autoL31:
 	call	int_to_hex 
 	lw	a0, -52(s0) # 4-byte Folded Reload 
 	call	print 
-kernel_autoL32:
+kernel_autoL31:
 	auipc	a0, %hi(%pcrel(kernel_L.str.1))
-	addi	a0, a0, %lo(%larel(kernel_L.str.1,kernel_autoL32))
+	addi	a0, a0, %lo(%larel(kernel_L.str.1,kernel_autoL31))
 	call	print 
-kernel_autoL33:
+kernel_autoL32:
 	auipc	a0, %hi(%pcrel(ROM_device_code))
-	lw	a0, %lo(%larel(ROM_device_code,kernel_autoL33))(a0)
+	lw	a0, %lo(%larel(ROM_device_code,kernel_autoL32))(a0)
 	lw	a1, -12(s0) 
 	call	find_device 
 	sw	a0, -28(s0) 
 	lw	a0, -28(s0) 
-	bnez	a0, kernel_LBB10_2 
-	j	kernel_LBB10_1 
-kernel_LBB10_1:
-kernel_autoL34:
+	bnez	a0, kernel_LBB9_2 
+	j	kernel_LBB9_1 
+kernel_LBB9_1:
+kernel_autoL33:
 	auipc	a0, %hi(%pcrel(kernel_L.str.2))
-	addi	a0, a0, %lo(%larel(kernel_L.str.2,kernel_autoL34))
+	addi	a0, a0, %lo(%larel(kernel_L.str.2,kernel_autoL33))
 	call	print 
-	j	kernel_LBB10_17 
-kernel_LBB10_2:
+	j	kernel_LBB9_17 
+kernel_LBB9_2:
 	li	a0, 4 
 	call	heap_alloc 
 	sw	a0, -32(s0) 
 	li	a0, 0 
 	sw	a0, -36(s0) 
-	j	kernel_LBB10_3 
-kernel_LBB10_3:
+	j	kernel_LBB9_3 
+kernel_LBB9_3:
 	lw	a0, -36(s0) 
-kernel_autoL35:
+kernel_autoL34:
 	auipc	a1, %hi(%pcrel(program_size))
-	lw	a1, %lo(%larel(program_size,kernel_autoL35))(a1)
-kernel_autoL36:
+	lw	a1, %lo(%larel(program_size,kernel_autoL34))(a1)
+kernel_autoL35:
 	auipc	a2, %hi(%pcrel(page_size))
-	lw	a2, %lo(%larel(page_size,kernel_autoL36))(a2)
+	lw	a2, %lo(%larel(page_size,kernel_autoL35))(a2)
 	divu	a1, a1, a2 
-	bge	a0, a1, kernel_LBB10_8 
-	j	kernel_LBB10_4 
-kernel_LBB10_4:
+	bge	a0, a1, kernel_LBB9_8 
+	j	kernel_LBB9_4 
+kernel_LBB9_4:
 	call	page_alloc 
 	lw	a1, -32(s0) 
 	lw	a2, -36(s0) 
@@ -595,38 +547,36 @@ kernel_LBB10_4:
 	slli	a1, a1, 2 
 	add	a0, a0, a1 
 	lw	a0, 0(a0) 
-	bnez	a0, kernel_LBB10_6 
-	j	kernel_LBB10_5 
-kernel_LBB10_5:
-kernel_autoL37:
+	bnez	a0, kernel_LBB9_6 
+	j	kernel_LBB9_5 
+kernel_LBB9_5:
+kernel_autoL36:
 	auipc	a0, %hi(%pcrel(kernel_L.str.3))
-	addi	a0, a0, %lo(%larel(kernel_L.str.3,kernel_autoL37))
+	addi	a0, a0, %lo(%larel(kernel_L.str.3,kernel_autoL36))
 	call	print 
 	call	syscall_handler_halt 
-	j	kernel_LBB10_6 
-kernel_LBB10_6:
-	j	kernel_LBB10_7 
-kernel_LBB10_7:
+	j	kernel_LBB9_6 
+kernel_LBB9_6:
+	j	kernel_LBB9_7 
+kernel_LBB9_7:
 	lw	a0, -36(s0) 
 	addi	a0, a0, 1 
 	sw	a0, -36(s0) 
-	j	kernel_LBB10_3 
-kernel_LBB10_8:
-kernel_autoL38:
+	j	kernel_LBB9_3 
+kernel_LBB9_8:
+kernel_autoL37:
 	auipc	a0, %hi(%pcrel(kernel_L.str.4))
-	addi	a0, a0, %lo(%larel(kernel_L.str.4,kernel_autoL38))
+	addi	a0, a0, %lo(%larel(kernel_L.str.4,kernel_autoL37))
 	call	print 
 	li	a0, 32 
 	call	heap_alloc 
 	sw	a0, -40(s0) 
 	call	ebreak_wrap 
-kernel_autoL39:
+kernel_autoL38:
 	auipc	a0, %hi(%pcrel(kernel_upt_ptr))
-	lw	a0, %lo(%larel(kernel_upt_ptr,kernel_autoL39))(a0)
+	lw	a0, %lo(%larel(kernel_upt_ptr,kernel_autoL38))(a0)
 	call	create_process_upt 
-kernel_autoL40:
-	auipc	a1, %hi(%pcrel(process_head))
-	lw	a1, %lo(%larel(process_head,kernel_autoL40))(a1)
+	lw	a1, -40(s0) 
 	sw	a0, 16(a1) 
 	call	ebreak_wrap 
 	lw	a0, -28(s0) 
@@ -634,56 +584,56 @@ kernel_autoL40:
 	sw	a0, -44(s0) 
 	li	a0, 0 
 	sw	a0, -48(s0) 
-	j	kernel_LBB10_9 
-kernel_LBB10_9:
+	j	kernel_LBB9_9 
+kernel_LBB9_9:
 	lw	a0, -48(s0) 
-kernel_autoL41:
+kernel_autoL39:
 	auipc	a1, %hi(%pcrel(program_size))
-	lw	a1, %lo(%larel(program_size,kernel_autoL41))(a1)
-kernel_autoL42:
+	lw	a1, %lo(%larel(program_size,kernel_autoL39))(a1)
+kernel_autoL40:
 	auipc	a2, %hi(%pcrel(page_size))
-	lw	a2, %lo(%larel(page_size,kernel_autoL42))(a2)
+	lw	a2, %lo(%larel(page_size,kernel_autoL40))(a2)
 	divu	a1, a1, a2 
-	bge	a0, a1, kernel_LBB10_12 
-	j	kernel_LBB10_10 
-kernel_LBB10_10:
+	bge	a0, a1, kernel_LBB9_12 
+	j	kernel_LBB9_10 
+kernel_LBB9_10:
 	lw	a1, -44(s0) 
 	lw	a2, -48(s0) 
-kernel_autoL43:
+kernel_autoL41:
 	auipc	a0, %hi(%pcrel(page_size))
-	lw	a3, %lo(%larel(page_size,kernel_autoL43))(a0)
+	lw	a3, %lo(%larel(page_size,kernel_autoL41))(a0)
 	mul	a2, a2, a3 
 	add	a2, a1, a2 
-kernel_autoL44:
+kernel_autoL42:
 	auipc	a1, %hi(%pcrel(DMA_portal_ptr))
-	lw	a3, %lo(%larel(DMA_portal_ptr,kernel_autoL44))(a1)
+	lw	a3, %lo(%larel(DMA_portal_ptr,kernel_autoL42))(a1)
 	sw	a2, 0(a3) 
 	lw	a2, -32(s0) 
 	lw	a3, -48(s0) 
 	slli	a3, a3, 2 
 	add	a2, a2, a3 
 	lw	a2, 0(a2) 
-	lw	a3, %lo(%larel(DMA_portal_ptr,kernel_autoL44))(a1)
+	lw	a3, %lo(%larel(DMA_portal_ptr,kernel_autoL42))(a1)
 	sw	a2, 4(a3) 
-	lw	a0, %lo(%larel(page_size,kernel_autoL43))(a0)
-	lw	a1, %lo(%larel(DMA_portal_ptr,kernel_autoL44))(a1)
+	lw	a0, %lo(%larel(page_size,kernel_autoL41))(a0)
+	lw	a1, %lo(%larel(DMA_portal_ptr,kernel_autoL42))(a1)
 	sw	a0, 8(a1) 
-	j	kernel_LBB10_11 
-kernel_LBB10_11:
+	j	kernel_LBB9_11 
+kernel_LBB9_11:
 	lw	a0, -48(s0) 
 	addi	a0, a0, 1 
 	sw	a0, -48(s0) 
-	j	kernel_LBB10_9 
-kernel_LBB10_12:
+	j	kernel_LBB9_9 
+kernel_LBB9_12:
 	lw	a0, -12(s0) 
 	lw	a1, -40(s0) 
 	sw	a0, 8(a1) 
 	lw	a0, -32(s0) 
 	lw	a1, -40(s0) 
 	sw	a0, 12(a1) 
-kernel_autoL45:
+kernel_autoL43:
 	auipc	a0, %hi(%pcrel(program_size))
-	lw	a0, %lo(%larel(program_size,kernel_autoL45))(a0)
+	lw	a0, %lo(%larel(program_size,kernel_autoL43))(a0)
 	lw	a1, -40(s0) 
 	sw	a0, 24(a1) 
 	lw	a1, -40(s0) 
@@ -692,57 +642,97 @@ kernel_autoL45:
 	lw	a1, -40(s0) 
 	sw	a0, 28(a1) 
 	lw	a0, -40(s0) 
-kernel_autoL46:
+kernel_autoL44:
 	auipc	a1, %hi(%pcrel(curr_process))
-	sw	a0, %lo(%larel(curr_process,kernel_autoL46))(a1)
-kernel_autoL47:
+	sw	a0, %lo(%larel(curr_process,kernel_autoL44))(a1)
+kernel_autoL45:
 	auipc	a0, %hi(%pcrel(process_head))
-	lw	a1, %lo(%larel(process_head,kernel_autoL47))(a0)
+	lw	a1, %lo(%larel(process_head,kernel_autoL45))(a0)
 	lw	a1, 0(a1) 
 	lw	a2, -40(s0) 
 	sw	a1, 0(a2) 
-	lw	a1, %lo(%larel(process_head,kernel_autoL47))(a0)
+	lw	a1, %lo(%larel(process_head,kernel_autoL45))(a0)
 	lw	a2, -40(s0) 
 	sw	a1, 4(a2) 
-	lw	a1, %lo(%larel(process_head,kernel_autoL47))(a0)
+	lw	a1, %lo(%larel(process_head,kernel_autoL45))(a0)
 	lw	a0, 0(a1) 
-	beq	a0, a1, kernel_LBB10_14 
-	j	kernel_LBB10_13 
-kernel_LBB10_13:
+	beq	a0, a1, kernel_LBB9_14 
+	j	kernel_LBB9_13 
+kernel_LBB9_13:
+	lw	a0, -40(s0) 
+kernel_autoL46:
+	auipc	a1, %hi(%pcrel(process_head))
+	lw	a1, %lo(%larel(process_head,kernel_autoL46))(a1)
+	lw	a1, 0(a1) 
+	sw	a0, 4(a1) 
+	j	kernel_LBB9_14 
+kernel_LBB9_14:
+	lw	a1, -40(s0) 
+kernel_autoL47:
+	auipc	a0, %hi(%pcrel(process_head))
+	lw	a2, %lo(%larel(process_head,kernel_autoL47))(a0)
+	sw	a1, 0(a2) 
+	lw	a1, %lo(%larel(process_head,kernel_autoL47))(a0)
+	lw	a0, 4(a1) 
+	bne	a0, a1, kernel_LBB9_16 
+	j	kernel_LBB9_15 
+kernel_LBB9_15:
 	lw	a0, -40(s0) 
 kernel_autoL48:
 	auipc	a1, %hi(%pcrel(process_head))
 	lw	a1, %lo(%larel(process_head,kernel_autoL48))(a1)
-	lw	a1, 0(a1) 
 	sw	a0, 4(a1) 
-	j	kernel_LBB10_14 
-kernel_LBB10_14:
-	lw	a1, -40(s0) 
+	j	kernel_LBB9_16 
+kernel_LBB9_16:
 kernel_autoL49:
-	auipc	a0, %hi(%pcrel(process_head))
-	lw	a2, %lo(%larel(process_head,kernel_autoL49))(a0)
-	sw	a1, 0(a2) 
-	lw	a1, %lo(%larel(process_head,kernel_autoL49))(a0)
-	lw	a0, 4(a1) 
-	bne	a0, a1, kernel_LBB10_16 
-	j	kernel_LBB10_15 
-kernel_LBB10_15:
-	lw	a0, -40(s0) 
-kernel_autoL50:
-	auipc	a1, %hi(%pcrel(process_head))
-	lw	a1, %lo(%larel(process_head,kernel_autoL50))(a1)
-	sw	a0, 4(a1) 
-	j	kernel_LBB10_16 
-kernel_LBB10_16:
-kernel_autoL51:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL51))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL49))(a0)
 	call	jump_to_next_ROM 
-	j	kernel_LBB10_17 
-kernel_LBB10_17:
+	j	kernel_LBB9_17 
+kernel_LBB9_17:
 	lw	ra, 60(sp) # 4-byte Folded Reload 
 	lw	s0, 56(sp) # 4-byte Folded Reload 
 	addi	sp, sp, 64 
+	ret	
+kernel_Lfunc_end9:
+	#	-- End function 
+create_process_upt:
+	#	%bb.0: 
+	addi	sp, sp, -32 
+	sw	ra, 28(sp) # 4-byte Folded Spill 
+	sw	s0, 24(sp) # 4-byte Folded Spill 
+	addi	s0, sp, 32 
+	sw	a0, -12(s0) 
+	call	create_upt 
+	sw	a0, -16(s0) 
+	li	a0, 0 
+	sw	a0, -20(s0) 
+	j	kernel_LBB10_1 
+kernel_LBB10_1:
+	lw	a1, -20(s0) 
+	li	a0, 511 
+	blt	a0, a1, kernel_LBB10_4 
+	j	kernel_LBB10_2 
+kernel_LBB10_2:
+	lw	a0, -12(s0) 
+	lw	a1, -20(s0) 
+	slli	a2, a1, 2 
+	add	a0, a0, a2 
+	lw	a0, 0(a0) 
+	lw	a1, -16(s0) 
+	add	a1, a1, a2 
+	sw	a0, 0(a1) 
+	j	kernel_LBB10_3 
+kernel_LBB10_3:
+	lw	a0, -20(s0) 
+	addi	a0, a0, 4 
+	sw	a0, -20(s0) 
+	j	kernel_LBB10_1 
+kernel_LBB10_4:
+	lw	a0, -16(s0) 
+	lw	ra, 28(sp) # 4-byte Folded Reload 
+	lw	s0, 24(sp) # 4-byte Folded Reload 
+	addi	sp, sp, 32 
 	ret	
 kernel_Lfunc_end10:
 	#	-- End function 
@@ -752,11 +742,11 @@ run_programs:
 	sw	ra, 12(sp) # 4-byte Folded Spill 
 	sw	s0, 8(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 16 
-kernel_autoL52:
+kernel_autoL50:
 	auipc	a2, %hi(%pcrel(run_programs.next_program_ROM))
-	lw	a0, %lo(%larel(run_programs.next_program_ROM,kernel_autoL52))(a2)
+	lw	a0, %lo(%larel(run_programs.next_program_ROM,kernel_autoL50))(a2)
 	addi	a1, a0, 1 
-	sw	a1, %lo(%larel(run_programs.next_program_ROM,kernel_autoL52))(a2)
+	sw	a1, %lo(%larel(run_programs.next_program_ROM,kernel_autoL50))(a2)
 	call	run_ROM 
 	lw	ra, 12(sp) # 4-byte Folded Reload 
 	lw	s0, 8(sp) # 4-byte Folded Reload 
@@ -770,28 +760,28 @@ end_process:
 	sw	ra, 12(sp) # 4-byte Folded Spill 
 	sw	s0, 8(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 16 
-kernel_autoL53:
+kernel_autoL51:
 	auipc	a0, %hi(%pcrel(kernel_L.str.5))
-	addi	a0, a0, %lo(%larel(kernel_L.str.5,kernel_autoL53))
+	addi	a0, a0, %lo(%larel(kernel_L.str.5,kernel_autoL51))
 	call	print 
 	li	a0, 0 
 	sw	a0, -12(s0) 
 	j	kernel_LBB12_1 
 kernel_LBB12_1:
 	lw	a0, -12(s0) 
-kernel_autoL54:
+kernel_autoL52:
 	auipc	a1, %hi(%pcrel(program_size))
-	lw	a1, %lo(%larel(program_size,kernel_autoL54))(a1)
-kernel_autoL55:
+	lw	a1, %lo(%larel(program_size,kernel_autoL52))(a1)
+kernel_autoL53:
 	auipc	a2, %hi(%pcrel(page_size))
-	lw	a2, %lo(%larel(page_size,kernel_autoL55))(a2)
+	lw	a2, %lo(%larel(page_size,kernel_autoL53))(a2)
 	divu	a1, a1, a2 
 	bge	a0, a1, kernel_LBB12_4 
 	j	kernel_LBB12_2 
 kernel_LBB12_2:
-kernel_autoL56:
+kernel_autoL54:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL56))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL54))(a0)
 	lw	a0, 12(a0) 
 	lw	a1, -12(s0) 
 	slli	a1, a1, 2 
@@ -805,37 +795,37 @@ kernel_LBB12_3:
 	sw	a0, -12(s0) 
 	j	kernel_LBB12_1 
 kernel_LBB12_4:
-kernel_autoL57:
+kernel_autoL55:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a1, %lo(%larel(curr_process,kernel_autoL57))(a0)
+	lw	a1, %lo(%larel(curr_process,kernel_autoL55))(a0)
 	sw	a1, -16(s0) 
-	lw	a1, %lo(%larel(curr_process,kernel_autoL57))(a0)
+	lw	a1, %lo(%larel(curr_process,kernel_autoL55))(a0)
 	lw	a1, 0(a1) 
-	sw	a1, %lo(%larel(curr_process,kernel_autoL57))(a0)
-	lw	a1, %lo(%larel(curr_process,kernel_autoL57))(a0)
+	sw	a1, %lo(%larel(curr_process,kernel_autoL55))(a0)
+	lw	a1, %lo(%larel(curr_process,kernel_autoL55))(a0)
 	lw	a0, 0(a1) 
 	lw	a1, 4(a1) 
 	bne	a0, a1, kernel_LBB12_6 
 	j	kernel_LBB12_5 
 kernel_LBB12_5:
-kernel_autoL58:
+kernel_autoL56:
 	auipc	a1, %hi(%pcrel(process_head))
 	li	a0, 0 
-	sw	a0, %lo(%larel(process_head,kernel_autoL58))(a1)
-kernel_autoL59:
+	sw	a0, %lo(%larel(process_head,kernel_autoL56))(a1)
+kernel_autoL57:
 	auipc	a0, %hi(%pcrel(kernel_L.str.6))
-	addi	a0, a0, %lo(%larel(kernel_L.str.6,kernel_autoL59))
+	addi	a0, a0, %lo(%larel(kernel_L.str.6,kernel_autoL57))
 	call	print 
-kernel_autoL60:
+kernel_autoL58:
 	auipc	a0, %hi(%pcrel(kernel_L.str.7))
-	addi	a0, a0, %lo(%larel(kernel_L.str.7,kernel_autoL60))
+	addi	a0, a0, %lo(%larel(kernel_L.str.7,kernel_autoL58))
 	call	print 
 	call	syscall_handler_halt 
 	j	kernel_LBB12_13 
 kernel_LBB12_6:
-kernel_autoL61:
+kernel_autoL59:
 	auipc	a0, %hi(%pcrel(process_head))
-	lw	a0, %lo(%larel(process_head,kernel_autoL61))(a0)
+	lw	a0, %lo(%larel(process_head,kernel_autoL59))(a0)
 	lw	a1, -16(s0) 
 	bne	a0, a1, kernel_LBB12_11 
 	j	kernel_LBB12_7 
@@ -845,22 +835,22 @@ kernel_LBB12_7:
 	bne	a0, a1, kernel_LBB12_9 
 	j	kernel_LBB12_8 
 kernel_LBB12_8:
-kernel_autoL62:
+kernel_autoL60:
 	auipc	a1, %hi(%pcrel(process_head))
 	li	a0, 0 
-	sw	a0, %lo(%larel(process_head,kernel_autoL62))(a1)
+	sw	a0, %lo(%larel(process_head,kernel_autoL60))(a1)
 	j	kernel_LBB12_10 
 kernel_LBB12_9:
 	lw	a0, -16(s0) 
 	lw	a1, 0(a0) 
-kernel_autoL63:
+kernel_autoL61:
 	auipc	a0, %hi(%pcrel(process_head))
-	sw	a1, %lo(%larel(process_head,kernel_autoL63))(a0)
+	sw	a1, %lo(%larel(process_head,kernel_autoL61))(a0)
 	lw	a1, -16(s0) 
 	lw	a1, 4(a1) 
-	lw	a2, %lo(%larel(process_head,kernel_autoL63))(a0)
+	lw	a2, %lo(%larel(process_head,kernel_autoL61))(a0)
 	sw	a1, 4(a2) 
-	lw	a0, %lo(%larel(process_head,kernel_autoL63))(a0)
+	lw	a0, %lo(%larel(process_head,kernel_autoL61))(a0)
 	lw	a1, -16(s0) 
 	lw	a1, 4(a1) 
 	sw	a0, 0(a1) 
@@ -882,29 +872,29 @@ kernel_LBB12_12:
 	call	heap_free 
 	j	kernel_LBB12_13 
 kernel_LBB12_13:
-kernel_autoL64:
+kernel_autoL62:
 	auipc	a0, %hi(%pcrel(kernel_L.str.7))
-	addi	a0, a0, %lo(%larel(kernel_L.str.7,kernel_autoL64))
+	addi	a0, a0, %lo(%larel(kernel_L.str.7,kernel_autoL62))
 	call	print 
-kernel_autoL65:
+kernel_autoL63:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL65))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL63))(a0)
 	lw	a0, 20(a0) 
 	bnez	a0, kernel_LBB12_15 
 	j	kernel_LBB12_14 
 kernel_LBB12_14:
-kernel_autoL66:
+kernel_autoL64:
 	auipc	a0, %hi(%pcrel(process_head))
-	lw	a0, %lo(%larel(process_head,kernel_autoL66))(a0)
+	lw	a0, %lo(%larel(process_head,kernel_autoL64))(a0)
 	lw	a0, 0(a0) 
-kernel_autoL67:
+kernel_autoL65:
 	auipc	a1, %hi(%pcrel(curr_process))
-	sw	a0, %lo(%larel(curr_process,kernel_autoL67))(a1)
+	sw	a0, %lo(%larel(curr_process,kernel_autoL65))(a1)
 	j	kernel_LBB12_15 
 kernel_LBB12_15:
-kernel_autoL68:
+kernel_autoL66:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL68))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL66))(a0)
 	call	jump_to_next_ROM 
 	lw	ra, 12(sp) # 4-byte Folded Reload 
 	lw	s0, 8(sp) # 4-byte Folded Reload 
@@ -921,16 +911,16 @@ update_curr_process:
 	sw	a0, -12(s0) 
 	sw	a1, -16(s0) 
 	lw	a0, -16(s0) 
-kernel_autoL69:
+kernel_autoL67:
 	auipc	a1, %hi(%pcrel(page_size))
-	lw	a1, %lo(%larel(page_size,kernel_autoL69))(a1)
+	lw	a1, %lo(%larel(page_size,kernel_autoL67))(a1)
 	divu	a0, a0, a1 
-kernel_autoL70:
+kernel_autoL68:
 	auipc	a1, %hi(%pcrel(curr_process))
-	lw	a2, %lo(%larel(curr_process,kernel_autoL70))(a1)
+	lw	a2, %lo(%larel(curr_process,kernel_autoL68))(a1)
 	sw	a0, 28(a2) 
 	lw	a0, -12(s0) 
-	lw	a2, %lo(%larel(curr_process,kernel_autoL70))(a1)
+	lw	a2, %lo(%larel(curr_process,kernel_autoL68))(a1)
 	lw	a3, 12(a2) 
 	lw	a4, 28(a2) 
 	slli	a4, a4, 2 
@@ -939,7 +929,7 @@ kernel_autoL70:
 	add	a0, a0, a3 
 	sw	a0, 24(a2) 
 	lw	a0, -16(s0) 
-	lw	a1, %lo(%larel(curr_process,kernel_autoL70))(a1)
+	lw	a1, %lo(%larel(curr_process,kernel_autoL68))(a1)
 	lw	a2, 12(a1) 
 	lw	a3, 28(a1) 
 	slli	a3, a3, 2 
@@ -959,32 +949,32 @@ alarm_next_program:
 	sw	ra, 12(sp) # 4-byte Folded Spill 
 	sw	s0, 8(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 16 
-kernel_autoL71:
+kernel_autoL69:
 	auipc	a0, %hi(%pcrel(kernel_L.str.8))
-	addi	a0, a0, %lo(%larel(kernel_L.str.8,kernel_autoL71))
+	addi	a0, a0, %lo(%larel(kernel_L.str.8,kernel_autoL69))
 	call	print 
-kernel_autoL72:
+kernel_autoL70:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a1, %lo(%larel(curr_process,kernel_autoL72))(a0)
+	lw	a1, %lo(%larel(curr_process,kernel_autoL70))(a0)
 	lw	a1, 0(a1) 
-	sw	a1, %lo(%larel(curr_process,kernel_autoL72))(a0)
-	lw	a0, %lo(%larel(curr_process,kernel_autoL72))(a0)
+	sw	a1, %lo(%larel(curr_process,kernel_autoL70))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL70))(a0)
 	lw	a0, 20(a0) 
 	bnez	a0, kernel_LBB14_2 
 	j	kernel_LBB14_1 
 kernel_LBB14_1:
-kernel_autoL73:
+kernel_autoL71:
 	auipc	a0, %hi(%pcrel(process_head))
-	lw	a0, %lo(%larel(process_head,kernel_autoL73))(a0)
+	lw	a0, %lo(%larel(process_head,kernel_autoL71))(a0)
 	lw	a0, 0(a0) 
-kernel_autoL74:
+kernel_autoL72:
 	auipc	a1, %hi(%pcrel(curr_process))
-	sw	a0, %lo(%larel(curr_process,kernel_autoL74))(a1)
+	sw	a0, %lo(%larel(curr_process,kernel_autoL72))(a1)
 	j	kernel_LBB14_2 
 kernel_LBB14_2:
-kernel_autoL75:
+kernel_autoL73:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL75))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL73))(a0)
 	call	jump_to_next_ROM 
 	lw	ra, 12(sp) # 4-byte Folded Reload 
 	lw	s0, 8(sp) # 4-byte Folded Reload 
@@ -998,25 +988,25 @@ restore_sp:
 	sw	ra, 12(sp) # 4-byte Folded Spill 
 	sw	s0, 8(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 16 
-kernel_autoL76:
+kernel_autoL74:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL76))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL74))(a0)
 	lw	a0, 20(a0) 
 	bnez	a0, kernel_LBB15_2 
 	j	kernel_LBB15_1 
 kernel_LBB15_1:
-kernel_autoL77:
+kernel_autoL75:
 	auipc	a0, %hi(%pcrel(process_head))
-	lw	a0, %lo(%larel(process_head,kernel_autoL77))(a0)
+	lw	a0, %lo(%larel(process_head,kernel_autoL75))(a0)
 	lw	a0, 0(a0) 
-kernel_autoL78:
+kernel_autoL76:
 	auipc	a1, %hi(%pcrel(curr_process))
-	sw	a0, %lo(%larel(curr_process,kernel_autoL78))(a1)
+	sw	a0, %lo(%larel(curr_process,kernel_autoL76))(a1)
 	j	kernel_LBB15_2 
 kernel_LBB15_2:
-kernel_autoL79:
+kernel_autoL77:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL79))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL77))(a0)
 	lw	a0, 24(a0) 
 	lw	ra, 12(sp) # 4-byte Folded Reload 
 	lw	s0, 8(sp) # 4-byte Folded Reload 
@@ -1030,25 +1020,25 @@ get_base:
 	sw	ra, 12(sp) # 4-byte Folded Spill 
 	sw	s0, 8(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 16 
-kernel_autoL80:
+kernel_autoL78:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL80))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL78))(a0)
 	lw	a0, 20(a0) 
 	bnez	a0, kernel_LBB16_2 
 	j	kernel_LBB16_1 
 kernel_LBB16_1:
-kernel_autoL81:
+kernel_autoL79:
 	auipc	a0, %hi(%pcrel(process_head))
-	lw	a0, %lo(%larel(process_head,kernel_autoL81))(a0)
+	lw	a0, %lo(%larel(process_head,kernel_autoL79))(a0)
 	lw	a0, 0(a0) 
-kernel_autoL82:
+kernel_autoL80:
 	auipc	a1, %hi(%pcrel(curr_process))
-	sw	a0, %lo(%larel(curr_process,kernel_autoL82))(a1)
+	sw	a0, %lo(%larel(curr_process,kernel_autoL80))(a1)
 	j	kernel_LBB16_2 
 kernel_LBB16_2:
-kernel_autoL83:
+kernel_autoL81:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a1, %lo(%larel(curr_process,kernel_autoL83))(a0)
+	lw	a1, %lo(%larel(curr_process,kernel_autoL81))(a0)
 	lw	a0, 12(a1) 
 	lw	a1, 28(a1) 
 	slli	a1, a1, 2 
@@ -1066,33 +1056,33 @@ get_limit:
 	sw	ra, 12(sp) # 4-byte Folded Spill 
 	sw	s0, 8(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 16 
-kernel_autoL84:
+kernel_autoL82:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a0, %lo(%larel(curr_process,kernel_autoL84))(a0)
+	lw	a0, %lo(%larel(curr_process,kernel_autoL82))(a0)
 	lw	a0, 20(a0) 
 	bnez	a0, kernel_LBB17_2 
 	j	kernel_LBB17_1 
 kernel_LBB17_1:
-kernel_autoL85:
+kernel_autoL83:
 	auipc	a0, %hi(%pcrel(process_head))
-	lw	a0, %lo(%larel(process_head,kernel_autoL85))(a0)
+	lw	a0, %lo(%larel(process_head,kernel_autoL83))(a0)
 	lw	a0, 0(a0) 
-kernel_autoL86:
+kernel_autoL84:
 	auipc	a1, %hi(%pcrel(curr_process))
-	sw	a0, %lo(%larel(curr_process,kernel_autoL86))(a1)
+	sw	a0, %lo(%larel(curr_process,kernel_autoL84))(a1)
 	j	kernel_LBB17_2 
 kernel_LBB17_2:
-kernel_autoL87:
+kernel_autoL85:
 	auipc	a0, %hi(%pcrel(curr_process))
-	lw	a1, %lo(%larel(curr_process,kernel_autoL87))(a0)
+	lw	a1, %lo(%larel(curr_process,kernel_autoL85))(a0)
 	lw	a0, 12(a1) 
 	lw	a1, 28(a1) 
 	slli	a1, a1, 2 
 	add	a0, a0, a1 
 	lw	a0, 0(a0) 
-kernel_autoL88:
+kernel_autoL86:
 	auipc	a1, %hi(%pcrel(page_size))
-	lw	a1, %lo(%larel(page_size,kernel_autoL88))(a1)
+	lw	a1, %lo(%larel(page_size,kernel_autoL86))(a1)
 	add	a0, a0, a1 
 	lw	ra, 12(sp) # 4-byte Folded Reload 
 	lw	s0, 8(sp) # 4-byte Folded Reload 
@@ -1175,6 +1165,7 @@ kernel_LBB20_1:
 	lw	a0, -28(s0) 
 	call	zero_page 
 	lw	a0, -28(s0) 
+	ori	a0, a0, 1023 
 	lw	a1, -12(s0) 
 	lw	a2, -24(s0) 
 	slli	a2, a2, 2 
@@ -1187,6 +1178,8 @@ kernel_LBB20_2:
 	slli	a1, a1, 2 
 	add	a0, a0, a1 
 	lw	a0, 0(a0) 
+	lui	a1, 1048575 
+	and	a0, a0, a1 
 	sw	a0, -32(s0) 
 	lw	a0, -16(s0) 
 	slli	a0, a0, 10 
@@ -1210,9 +1203,9 @@ find_last_device:
 	sw	ra, 12(sp) # 4-byte Folded Spill 
 	sw	s0, 8(sp) # 4-byte Folded Spill 
 	addi	s0, sp, 16 
-kernel_autoL89:
+kernel_autoL87:
 	auipc	a0, %hi(%pcrel(device_table_base))
-	lw	a0, %lo(%larel(device_table_base,kernel_autoL89))(a0)
+	lw	a0, %lo(%larel(device_table_base,kernel_autoL87))(a0)
 	sw	a0, -12(s0) 
 	li	a0, 0 
 	sw	a0, -16(s0) 
@@ -1220,9 +1213,9 @@ kernel_autoL89:
 kernel_LBB21_1:
 	lw	a0, -12(s0) 
 	lw	a0, 0(a0) 
-kernel_autoL90:
+kernel_autoL88:
 	auipc	a1, %hi(%pcrel(none_device_code))
-	lw	a1, %lo(%larel(none_device_code,kernel_autoL90))(a1)
+	lw	a1, %lo(%larel(none_device_code,kernel_autoL88))(a1)
 	beq	a0, a1, kernel_LBB21_3 
 	j	kernel_LBB21_2 
 kernel_LBB21_2:
