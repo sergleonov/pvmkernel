@@ -66,6 +66,17 @@ static word_t program_size = 0x8000;
 
 /* =============================================================================================================================== */
 
+
+
+/* =============================================================================================================================== */
+/* FUNCTION SIGNATURES */
+
+upt_entry_t* create_upt ();
+upt_entry_t* create_process_upt(upt_entry_t* kernel_upt);
+
+
+/* =============================================================================================================================== */
+
 /* =============================================================================================================================== */
 void int_to_hex (word_t value, char* buffer) {
 
@@ -212,7 +223,7 @@ void ram_free(address_t address){
   
 }
 
-void process_head_init(){
+address_t process_head_init(){
   process_head = heap_alloc(sizeof(*process_head));
   process_head->prev = process_head;
   process_head->next = process_head;
@@ -220,6 +231,9 @@ void process_head_init(){
   process_head->pc = NULL;
   process_head->pid = NULL;
   process_head->curr_page_idx = NULL;
+
+  process_head->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
+  return (address_t) process_head;
 }
 
 void jump_to_next_ROM(process_info_s* curr){
@@ -438,6 +452,15 @@ upt_entry_t* create_kernel_upt () {
 
   return upt;
 
+}
+
+upt_entry_t* create_process_upt(upt_entry_t* kernel_upt) {
+  upt_entry_t* upt = create_upt();
+  for (int i = 0; i < (BYTES_PER_PAGE / BYTES_PER_WORD) / 2; i += BYTES_PER_WORD) {
+    upt[i] = kernel_upt[i];
+  }
+
+  return upt;
 }
 
 

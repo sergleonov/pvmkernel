@@ -51,4 +51,6 @@ extern address_t     RAM_limit;
 extern address_t     kernel_limit;
 extern DMA_portal_s* DMA_portal_ptr;
 
+extern address_t     kernel_upt_ptr;
+
 #endif 

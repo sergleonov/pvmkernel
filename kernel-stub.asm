@@ -640,13 +640,12 @@ main_with_console:
 	la 		a0, 	initialzing_kernel_pt_msg
 	call 	print
 	call 	create_kernel_upt
-	ebreak
 	csrw 	pt, 	a0
+	sw		a0, 	kernel_upt_ptr,	t6
 	addi 	t0, 	zero, 	12
 	csrw 	md, 	t0
 	la 		a0, 	done_msg
 	call 	print
-	ebreak
 
 	## Call process_head_init()
 	la 		a0, 	initializing_process_head_msg
@@ -735,6 +734,9 @@ kernel_limit:		0
 DMA_portal_ptr:		0
 statics_limit:		0	#store the limit of the kernel statics
 alarm_quanta:		1000
+
+## project 3
+kernel_upt_ptr:		0
 ### ================================================================================================================================
 
 
