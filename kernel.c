@@ -56,7 +56,6 @@ extern dt_entry_s* device_table_base;
 /* The current limit of the heap. */
 static address_t heap_limit = (address_t)NULL;
 static word_t page_size = 0x1000;
-static word_t program_size = 0x8000;
 /* A pair of sentinels to the free list, making the coding easier. */
  header_s free_head = { .next = NULL, .prev = NULL, .size = 0 };
  header_s free_tail = { .next = NULL, .prev = NULL, .size = 0 };
@@ -252,45 +251,65 @@ void run_ROM(word_t next_ROM){
     print("Process not found\n");
     return;
   }
-  
-  // assuming program size of 32KB, make list of pages for program
-  address_t* program_page_list = heap_alloc(sizeof(address_t));
 
-  for (int i = 0; i < (int)(program_size/page_size); i++){
-    program_page_list[i] = page_alloc();
-    if (program_page_list[i] == 0) {
+  word_t curr_program_size = dt_ROM_ptr->limit - dt_ROM_ptr->base;
+  
+  // calculating number of pages per program
+  word_t num_pages = curr_program_size / page_size;
+  if (curr_program_size % page_size != 0) {
+    num_pages++;
+  }
+  // create array to store the page frames
+  address_t* page_frames = heap_alloc(num_pages * sizeof(address_t));  
+
+  // allocate pages for the process
+  for (int i = 0; i < num_pages; i++){
+    page_frames[i] = page_alloc();
+    if (page_frames[i] == 0) {
       print("No more RAM space.\n");
       syscall_handler_halt();
     }
   }
-
-  print("Running program...\n");
   /* Copy the program into the free RAM space after the kernel. */
 
   // Start the process info struct
   process_info_s* process = heap_alloc(sizeof(*process));
   process->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
-  ebreak_wrap();
+  print("Copying program into RAM...\n");
+  address_t curr_ROM_base = dt_ROM_ptr->base;
+  address_t curr_ROM_limit = dt_ROM_ptr->limit;
 
-  address_t curr_ROM_place = dt_ROM_ptr->base;
-  for (int i = 0; i < (int)(program_size/page_size); i++){
-    DMA_portal_ptr->src    = curr_ROM_place + i * page_size;
-    DMA_portal_ptr->dst    = program_page_list[i];
-    DMA_portal_ptr->length = page_size; // Trigger
+  // copy program from ROM to RAM
+  for (int i = 0; i < num_pages; i++){
+    address_t curr_src_base = curr_ROM_base + i * page_size;
+    DMA_portal_ptr->src    = curr_src_base;
+    DMA_portal_ptr->dst    = page_frames[i];
+    // get the base address of the last page to adjust the size of copying to avoid bus error
+    DMA_portal_ptr->length = (curr_src_base != curr_ROM_limit - (curr_ROM_limit % page_size)) ? page_size : curr_ROM_limit % page_size; // Trigger
+    ebreak_wrap();
+  }
+
+  // mapping the pages to the virtual address space
+  for (int i = 0; i < num_pages; i++){
+    address_t vpage_addr = 0x80000000 + i * page_size;
+    word_t pte = page_frames[i] | PTE_MAPPED_BIT | PTE_RESIDENT_BIT | PTE_SREAD_BIT | PTE_SWRITE_BIT | PTE_SEXEC_BIT;
+    set_pte((upt_entry_t*) process->pt_ptr, vpage_addr, pte);
   }
 
   
   // adding process info to the process list
   process->pid = next_ROM;
-  process->page_list_base = program_page_list;
-  process->sp = program_size;
-  process->pc =NULL;
+  process->page_frames_base = page_frames;
+  process->sp = curr_program_size;
+  process->pc = 0;
   process->curr_page_idx = 0;
+  process->num_page_frames = num_pages;
  
   curr_process = process;
   CIRC_INSERT(process_head, process);
 
   /* Jump to the copied code at the kernel limit / program base. */
+  print("Running program...\n");
   jump_to_next_ROM(curr_process);
 }
 
@@ -308,8 +327,8 @@ void end_process(){
   
   print("Ending current process...");
   // free the RAM blocks
-  for (int i = 0; i < (int)(program_size/page_size); i++){
-    ram_free(curr_process->page_list_base[i]);
+  for (int i = 0; i < curr_process->num_page_frames; i++){
+    ram_free(curr_process->page_frames_base[i]);
   }
 
   // preserve the local pointer of the prcoess being removed
@@ -344,8 +363,8 @@ void end_process(){
 void update_curr_process(address_t sp, address_t pc){
 
         curr_process->curr_page_idx = (int)(pc / page_size);
-        curr_process->sp = sp + curr_process->page_list_base[curr_process->curr_page_idx];
-        curr_process->pc = pc + curr_process->page_list_base[curr_process->curr_page_idx];
+        curr_process->sp = sp + curr_process->page_frames_base[curr_process->curr_page_idx];
+        curr_process->pc = pc + curr_process->page_frames_base[curr_process->curr_page_idx];
 }
 
 void alarm_next_program(){
@@ -370,14 +389,14 @@ address_t get_base(){
   if (curr_process->pc == 0){
     curr_process = process_head->next;
   }
-      return  curr_process->page_list_base[curr_process->curr_page_idx];
+      return  curr_process->page_frames_base[curr_process->curr_page_idx];
 }
 
 address_t get_limit(){
   if (curr_process->pc == 0){
     curr_process = process_head->next;
   }
-  return  curr_process->page_list_base[curr_process->curr_page_idx] + page_size;
+  return  curr_process->page_frames_base[curr_process->curr_page_idx] + page_size;
 }
 
 

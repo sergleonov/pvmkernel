@@ -31,8 +31,9 @@ typedef struct process_info {
   struct process_info* next;
   struct process_info* prev;
   word_t        pid;
-  address_t*    page_list_base;
-  address_t    pt_ptr;
+  address_t*    page_frames_base;
+  word_t        num_page_frames;
+  address_t     pt_ptr;
   word_t        pc;
   word_t        sp;
   word_t        curr_page_idx;
