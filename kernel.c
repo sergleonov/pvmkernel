@@ -48,7 +48,6 @@ static char hex_digits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '
 static address_link_s* RAM_head = NULL;
 static process_info_s* process_head = NULL;
 static process_info_s* curr_process = NULL;
-
 /* The externally provided end of the statics, at which the heap will begin. */
 extern address_t statics_limit;
 /* externally provided base address of the device table*/
@@ -56,6 +55,7 @@ extern dt_entry_s* device_table_base;
 /* The current limit of the heap. */
 static address_t heap_limit = (address_t)NULL;
 static word_t page_size = 0x1000;
+static word_t num_stack_pages = 2;
 /* A pair of sentinels to the free list, making the coding easier. */
  header_s free_head = { .next = NULL, .prev = NULL, .size = 0 };
  header_s free_tail = { .next = NULL, .prev = NULL, .size = 0 };
@@ -252,13 +252,14 @@ void run_ROM(word_t next_ROM){
     return;
   }
 
-  word_t curr_program_size = dt_ROM_ptr->limit - dt_ROM_ptr->base;
+  word_t curr_exec_image_size = dt_ROM_ptr->limit - dt_ROM_ptr->base;
   
   // calculating number of pages per program
-  word_t num_pages = curr_program_size / page_size;
-  if (curr_program_size % page_size != 0) {
-    num_pages++;
+  word_t num_exec_pages = curr_exec_image_size / page_size;
+  if (curr_exec_image_size % page_size != 0) {
+    num_exec_pages++;
   }
+  word_t num_pages = num_exec_pages + num_stack_pages;  // allocating pages for executable image and extra for stack
   // create array to store the page frames
   address_t* page_frames = heap_alloc(num_pages * sizeof(address_t));  
 
@@ -276,11 +277,12 @@ void run_ROM(word_t next_ROM){
   process_info_s* process = heap_alloc(sizeof(*process));
   process->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
   print("Copying program into RAM...\n");
+
   address_t curr_ROM_base = dt_ROM_ptr->base;
   address_t curr_ROM_limit = dt_ROM_ptr->limit;
 
   // copy program from ROM to RAM
-  for (int i = 0; i < num_pages; i++){
+  for (int i = 0; i < num_exec_pages; i++){
     address_t curr_src_base = curr_ROM_base + i * page_size;
     DMA_portal_ptr->src    = curr_src_base;
     DMA_portal_ptr->dst    = page_frames[i];
@@ -289,10 +291,16 @@ void run_ROM(word_t next_ROM){
     ebreak_wrap();
   }
 
-  // mapping the pages to the virtual address space
-  for (int i = 0; i < num_pages; i++){
+  // mapping the executable image pages to the virtual address space
+  for (int i = 0; i < num_exec_pages; i++){
     address_t vpage_addr = 0x80000000 + i * page_size;
-    word_t pte = page_frames[i] | PTE_MAPPED_BIT | PTE_RESIDENT_BIT | PTE_SREAD_BIT | PTE_SWRITE_BIT | PTE_SEXEC_BIT;
+    word_t pte = page_frames[i];
+    set_pte((upt_entry_t*) process->pt_ptr, vpage_addr, pte);
+  }
+  // mapping the stack pages to the virtual address space
+  for (int i = 0; i < num_stack_pages; i++){
+    address_t vpage_addr = 0xffffe000 - (i * page_size);
+    word_t pte = page_frames[num_exec_pages + i];
     set_pte((upt_entry_t*) process->pt_ptr, vpage_addr, pte);
   }
 
@@ -300,8 +308,8 @@ void run_ROM(word_t next_ROM){
   // adding process info to the process list
   process->pid = next_ROM;
   process->page_frames_base = page_frames;
-  process->sp = curr_program_size;
-  process->pc = 0;
+  process->sp = 0xffffefff; 
+  process->pc = 0x80000000;
   process->curr_page_idx = 0;
   process->num_page_frames = num_pages;
  

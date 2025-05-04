@@ -551,9 +551,7 @@ userspace_jump:
 	
 	call restore_sp
 	add		sp,			zero, 			a0
-	call	get_base
 
-	sub		sp,			sp,				a0
 
 	# set quanta
 	csrr 	t0,		ck
