@@ -308,7 +308,7 @@ void run_ROM(word_t next_ROM){
   // adding process info to the process list
   process->pid = next_ROM;
   process->page_frames_base = page_frames;
-  process->sp = 0xffffefff; 
+  process->sp = 0xfffff000; 
   process->pc = 0x80000000;
   process->curr_page_idx = 0;
   process->num_page_frames = num_pages;
