@@ -402,17 +402,6 @@ handle_print:
 
 	mv 		a0, 	a1
 
-	# preserve address of string
-	addi 	sp, 	sp, 	-4
-	sw 		a0,		0(sp)   
-
-	# convert string address into physical
-	call 	get_base
-	lw 		t0,   	0(sp)
-	add 	a0, 	t0, 	a0
-	# restore stack
-	addi 	sp, 	sp,  	4
-
 	call print
 	lw		a0,		curr_process
 	call 	jump_to_next_ROM
