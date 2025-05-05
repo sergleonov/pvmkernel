@@ -370,8 +370,8 @@ void end_process(){
 void update_curr_process(address_t sp, address_t pc){
 
         curr_process->curr_page_idx = (int)(pc / page_size);
-        curr_process->sp = sp + curr_process->page_frames_base[curr_process->curr_page_idx];
-        curr_process->pc = pc + curr_process->page_frames_base[curr_process->curr_page_idx];
+        curr_process->sp = sp;
+        curr_process->pc = pc;
 }
 
 void alarm_next_program(){

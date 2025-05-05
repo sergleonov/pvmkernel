@@ -337,7 +337,7 @@ do_exit:
 
 	## Remove process from the process table and free RAM space
 	call 	end_process
-
+	ebreak
 	## Epilogue: If we are here, no program ran, so restore and return.
 	lw		ra,		4(sp)						# Restore ra
 	lw		fp,		0(sp)						# Restore fp
@@ -375,7 +375,7 @@ syscall_handler:
 
 	lw 		a0,		0(sp)
 	lw		a1,		4(sp)
-
+	ebreak
 	## Dispatch on the requested syscall.
 	lw		t0,		syscall_EXIT
 	beq		a0,		t0,		handle_exit			# Is it an EXIT request?
@@ -1868,21 +1868,9 @@ kernel_autoL71:
 	sw	a0, 32(a2) 
 	lw	a0, -12(s0) 
 	lw	a2, %lo(%larel(curr_process,kernel_autoL71))(a1)
-	lw	a3, 12(a2) 
-	lw	a4, 32(a2) 
-	slli	a4, a4, 2 
-	add	a3, a3, a4 
-	lw	a3, 0(a3) 
-	add	a0, a0, a3 
 	sw	a0, 28(a2) 
 	lw	a0, -16(s0) 
 	lw	a1, %lo(%larel(curr_process,kernel_autoL71))(a1)
-	lw	a2, 12(a1) 
-	lw	a3, 32(a1) 
-	slli	a3, a3, 2 
-	add	a2, a2, a3 
-	lw	a2, 0(a2) 
-	add	a0, a0, a2 
 	sw	a0, 24(a1) 
 	lw	ra, 12(sp) # 4-byte Folded Reload 
 	lw	s0, 8(sp) # 4-byte Folded Reload 

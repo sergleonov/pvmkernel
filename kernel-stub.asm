@@ -337,7 +337,7 @@ do_exit:
 
 	## Remove process from the process table and free RAM space
 	call 	end_process
-
+	ebreak
 	## Epilogue: If we are here, no program ran, so restore and return.
 	lw		ra,		4(sp)						# Restore ra
 	lw		fp,		0(sp)						# Restore fp
@@ -375,7 +375,7 @@ syscall_handler:
 
 	lw 		a0,		0(sp)
 	lw		a1,		4(sp)
-
+	ebreak
 	## Dispatch on the requested syscall.
 	lw		t0,		syscall_EXIT
 	beq		a0,		t0,		handle_exit			# Is it an EXIT request?

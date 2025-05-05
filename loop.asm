@@ -17,6 +17,7 @@ loop_end:
     # End of loop — could add syscall to exit, etc.
     li a7, 10             # syscall for exit
 	li  a0, 0xca110001
+    ebreak
 	ecall
 	
 
