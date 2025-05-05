@@ -1,4 +1,58 @@
-# Group Paged VM, 10 am Edition
+# Paged Virtual Memory Kernel, 10 am Edition
+
+**Contents**
+
+* `bios.asm`  
+    Contains the BIOS code responsible for booting the system. 
+* `kernel.c`  
+    Defines core kernel functionality, including process creation and scheduling. 
+* `kernel-stub.asm` & `kernel-stub.h`  
+    Provide basic kernel setup and function definitions for initializing the kernel and interacting with system calls. 
+* `init.asm`  
+    Calls the other 3 programs, ROM 4-6, and prints "hello from kernel." Tests all the syscalls effectively. 
+* `types.h`  
+    Defines common types and constants used across the kernel.
+* `do-nothing.asm`  
+    A test program that does nothing, as the name suggests.
+* `linked_list.h`  
+    Implements a doubly linked list with add and remove methods used for managing RAM free blocks and heap free blocks. 
+* `circ_linked_list.h`  
+    Header file containing macros for insert and remove methods for the circular doubly linked list used for managing the process list.
+* `loop.asm`  
+    Runs a loop with 10,000 iterations to test the alarm interrupt.
+
+**Build and Run**
+
+Download all the files into your directory. Then...
+
+**Assemble the files:**
+
+(sys2) $ f-assemble bios.asm
+(sys2) $ f-assemble loop.asm
+(sys2) $ f-assemble init.asm
+
+
+**Build the kernel:**
+
+(sys2) $ f-build combo.vmx kernel-stub.asm kernel.c
+
+
+**Run the simulation:**
+
+(sys2) $ f-simulate bios.vmx combo.vmx loop.vmx 
+
+
+**Adjust RAM space:**
+
+(sys2) $ cd fivish/simulator
+(sys2) $ vim f-simulate
+
+
+Set the field `mainMemoryPages` to `64` to enable concurrent running of test programs
+
+## Implementation Comments
+
+We are currently setting all the metadata bits to one in the user program and in the kernel. This is not the best practice as it allows user to access kernel code.
 
 ## Page tables
 
@@ -130,9 +184,36 @@ Each member of this group should add their username (e.g., `sfkaplan`) at the en
 take on a task as a pair with someone else in the group.  *To avoid having everyone trying to edit the same file, each new function
 should be written into its own `.c` file*, and I will merge them once first versions of them are done.
 
-- [ ] Write the high-level `map_all_devices()` to create the page table of identity mappings. - madi + deshan
-- [ ] Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) - crawford + sergei
-- [ ] Write `zero_page()` 
-- [ ] Write proper versions of the above functions that handle errors correctly.- sherlyn, mayisa and lindsay
+- [ ] Write the high-level `map_all_devices()` to create the page table of identity mappings. - **Madi + Deshan**
+- [ ] Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) - **Crawford + Sergei**
+- [ ] Write `zero_page()` - **larciniega27**
+- [ ] Write proper versions of the above functions that handle errors correctly.- **Sherlyn + Mayisa + Lindsay**
 - [ ] Write stub code to transition into virtual addressing for the kernel by using the page table created by `map_all_devices()`. - **kbarrett27**
-- [ ] Choose a kernel from Project-2 as a starting point to which to add these functions.
+- [ ] Choose a kernel from Project-2 as a starting point to which to add these functions. - **Teamwork!**
+
+## Tasks
+
+| Task | Team |
+|------|-------------|
+| Write the high-level `map_all_devices()` to create the page table of identity mappings | Madi + Deshan |
+| Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) | Crawford + Sergei |
+| Write `zero_page()` | Luis Arciniega |
+| Write proper versions of the above functions that handle errors correctly | Sherlyn, Mayisa and Lindsay |
+| Write stub code to transition into virtual addressing for the kernel | Kaleb Barrett |
+| Choose a kernel from Project-2 as a starting point | Teamwork! |
+
+## Team
+
+| Name | Email |
+|------|-------|
+| Crawford Dawson | ddawson27@amherst.edu |
+| Deshan de Mel | ddemel27@amherst.edu |
+| Kaleb Barrett | kbarrett27@amherst.edu |
+| Lindsay Ward | lward25@amherst.edu |
+| Madi Gudin | mgudin27@amherst.edu |
+| Mayisa Tasnim | mtasnim27@amherst.edu |
+| Sergei Leonov | sleonov27@amherst.edu |
+| Sherlyn Saavedra | ssaavedra27@amherst.edu |
+| Luis Arciniega | larciniega27@amherst.edu |
+
+ahan27@amherst.edu, ddawson27@amherst.edu, ddemel27@amherst.edu, kbarrett27@amherst.edu, larciniega27@amherst.edu, lward25@amherst.edu, mbailey26@amherst.edu, mgudin27@amherst.edu, mtasnim27@amherst.edu, sfkaplan@amherst.edu, sleonov27@amherst.edu, ssaavedra27@amherst.edu

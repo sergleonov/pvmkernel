@@ -1,0 +1,34 @@
+Professor Kaplan Notes:
+- running a process shouldn't work
+- running a process comes later
+- be wary of the simulator!
+
+
+Crawford Notes:
+
+
+Deshan Notes:
+
+
+Kaleb Notes:
+
+
+Lindsay Notes: 
+
+
+Madi Notes:
+
+
+Mayisa Notes:
+
+
+Sergei Notes:
+
+
+Sherlyn Notes:
+
+
+Luis Notes:
+- I'm working on zero_page(); trying to intialize new page table blocks
+
+
