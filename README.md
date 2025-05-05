@@ -1,4 +1,58 @@
-# Group Paged VM, 10 am Edition
+# Paged Virtual Memory Kernel, 10 am Edition
+
+**Contents**
+
+* `bios.asm`  
+    Contains the BIOS code responsible for booting the system. 
+* `kernel.c`  
+    Defines core kernel functionality, including process creation and scheduling. 
+* `kernel-stub.asm` & `kernel-stub.h`  
+    Provide basic kernel setup and function definitions for initializing the kernel and interacting with system calls. 
+* `init.asm`  
+    Calls the other 3 programs, ROM 4-6, and prints "hello from kernel." Tests all the syscalls effectively. 
+* `types.h`  
+    Defines common types and constants used across the kernel.
+* `do-nothing.asm`  
+    A test program that does nothing, as the name suggests.
+* `linked_list.h`  
+    Implements a doubly linked list with add and remove methods used for managing RAM free blocks and heap free blocks. 
+* `circ_linked_list.h`  
+    Header file containing macros for insert and remove methods for the circular doubly linked list used for managing the process list.
+* `loop.asm`  
+    Runs a loop with 10,000 iterations to test the alarm interrupt.
+
+**Build and Run**
+
+Download all the files into your directory. Then...
+
+**Assemble the files:**
+
+(sys2) $ f-assemble bios.asm
+(sys2) $ f-assemble loop.asm
+(sys2) $ f-assemble init.asm
+
+
+**Build the kernel:**
+
+(sys2) $ f-build combo.vmx kernel-stub.asm kernel.c
+
+
+**Run the simulation:**
+
+(sys2) $ f-simulate bios.vmx combo.vmx loop.vmx 
+
+
+**Adjust RAM space:**
+
+(sys2) $ cd fivish/simulator
+(sys2) $ vim f-simulate
+
+
+Set the field `mainMemoryPages` to `64` to enable concurrent running of test programs
+
+## Implementation Comments
+
+We are currently setting all the metadata bits to one in the user program and and in the kernel. This is not the best practice as it allows user to access kernel code.
 
 ## Page tables
 
