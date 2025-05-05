@@ -1,11 +1,11 @@
 #include <assert.h>
 #include <stdio.h>
-#include "kernel.c" // prob not nec
-// maybe rename RAM_head to PAGE_head in kernel.c page_alloc()
+#include "kernel.c" // should really be header file
+// maybe rename RAM_head and ram_init to PAGE_head and page_init in kernel.c 
 
 void test_page_alloc() {
 
-    page_init();
+    ram_init(); 
 
     // allocate 1 page
     address_t addr1 = page_alloc();
@@ -16,7 +16,7 @@ void test_page_alloc() {
 
     // allocate all available pages
     while (page_alloc() != NULL);
-    if (RAM_head == NULL) {
+    if (get_RAM_head() == NULL) {
         printf("page allocated to address: %p\n", (void*)addr1);
     } // checks all pages are allocated
 
