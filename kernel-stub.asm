@@ -542,26 +542,23 @@ init_trap_table:
 ### Procedure: userspace_jump
 
 userspace_jump:
-	addi		sp,		sp,		-4
-	sw			a0,		0(sp)
 
-	lw		t0,		0(sp)
-	sub		a0,		t0,		a0
 	csrw		epc,		a0
+	csrw		pt,			a1
 	
 	call restore_sp
 	add		sp,			zero, 			a0
 
 
 	# set quanta
-	csrr 	t0,		ck
-	lw 		t1,		alarm_quanta
-	add 	t0, 	t1,		t0
-	csrw 	al,		t0
+	#csrr 	t0,		ck
+	#lw 		t1,		alarm_quanta
+	#add 	t0, 	t1,		t0
+	#csrw 	al,		t0
 
 	# enable alarm and virtual addressing
-	addi 	t0,		zero, 	28
-	csrw 	md,		t0
+	#addi 	t0,		zero, 	28
+	#csrw 	md,		t0
 	#load base and limit values to bs and lm, for mmu
 	#activate virtual addressing and alarm and then jump
 	eret
@@ -569,6 +566,9 @@ userspace_jump:
 	
 
 ebreak_wrap:
+	ebreak
+	ret
+ebreak_wrap_args:
 	ebreak
 	ret
 

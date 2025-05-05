@@ -444,7 +444,7 @@ process_head_init:                      # @process_head_init
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
 	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	addi	s0, sp, 16
-	li	a0, 32
+	li	a0, 36
 	call	heap_alloc
 	mv	a1, a0
 	lui	a0, %hi(process_head)
@@ -455,13 +455,15 @@ process_head_init:                      # @process_head_init
 	sw	a1, 0(a1)
 	lw	a2, %lo(process_head)(a0)
 	li	a1, 0
-	sw	a1, 24(a2)
+	sw	a1, 28(a2)
 	lw	a2, %lo(process_head)(a0)
-	sw	a1, 20(a2)
+	sw	a1, 24(a2)
 	lw	a2, %lo(process_head)(a0)
 	sw	a1, 8(a2)
 	lw	a2, %lo(process_head)(a0)
-	sw	a1, 28(a2)
+	sw	a1, 32(a2)
+	lw	a2, %lo(process_head)(a0)
+	sw	a1, 20(a2)
 	lw	a0, %lo(process_head)(a0)
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
 	lw	s0, 8(sp)                       # 4-byte Folded Reload
@@ -480,8 +482,9 @@ jump_to_next_ROM:                       # @jump_to_next_ROM
 	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	addi	s0, sp, 16
 	sw	a0, -12(s0)
-	lw	a0, -12(s0)
-	lw	a0, 20(a0)
+	lw	a1, -12(s0)
+	lw	a0, 24(a1)
+	lw	a1, 20(a1)
 	call	userspace_jump
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
 	lw	s0, 8(sp)                       # 4-byte Folded Reload
@@ -495,19 +498,19 @@ kernel_Lfunc_end8:
 	.type	run_ROM,@function
 run_ROM:                                # @run_ROM
 # %bb.0:
-	addi	sp, sp, -64
-	sw	ra, 60(sp)                      # 4-byte Folded Spill
-	sw	s0, 56(sp)                      # 4-byte Folded Spill
-	addi	s0, sp, 64
+	addi	sp, sp, -112
+	sw	ra, 108(sp)                     # 4-byte Folded Spill
+	sw	s0, 104(sp)                     # 4-byte Folded Spill
+	addi	s0, sp, 112
 	sw	a0, -12(s0)
 	lui	a0, %hi(kernel_L.str)
 	addi	a0, a0, %lo(kernel_L.str)
 	call	print
 	lw	a0, -12(s0)
 	addi	a1, s0, -21
-	sw	a1, -52(s0)                     # 4-byte Folded Spill
+	sw	a1, -96(s0)                     # 4-byte Folded Spill
 	call	int_to_hex
-	lw	a0, -52(s0)                     # 4-byte Folded Reload
+	lw	a0, -96(s0)                     # 4-byte Folded Reload
 	call	print
 	lui	a0, %hi(kernel_L.str.1)
 	addi	a0, a0, %lo(kernel_L.str.1)
@@ -524,167 +527,289 @@ kernel_LBB9_1:
 	lui	a0, %hi(kernel_L.str.2)
 	addi	a0, a0, %lo(kernel_L.str.2)
 	call	print
-	j	kernel_LBB9_17
+	j	kernel_LBB9_30
 kernel_LBB9_2:
-	li	a0, 4
-	call	heap_alloc
+	lw	a1, -28(s0)
+	lw	a0, 8(a1)
+	lw	a1, 4(a1)
+	sub	a0, a0, a1
 	sw	a0, -32(s0)
-	li	a0, 0
+	lw	a0, -32(s0)
+	lui	a1, %hi(page_size)
+	lw	a2, %lo(page_size)(a1)
+	divu	a0, a0, a2
 	sw	a0, -36(s0)
+	lw	a0, -32(s0)
+	lw	a1, %lo(page_size)(a1)
+	remu	a0, a0, a1
+	beqz	a0, kernel_LBB9_4
 	j	kernel_LBB9_3
-kernel_LBB9_3:                                # =>This Innerkernel_Loop Header: Depth=1
+kernel_LBB9_3:
 	lw	a0, -36(s0)
-	lui	a1, %hi(program_size)
-	lw	a1, %lo(program_size)(a1)
-	lui	a2, %hi(page_size)
-	lw	a2, %lo(page_size)(a2)
-	divu	a1, a1, a2
-	bge	a0, a1, kernel_LBB9_8
+	addi	a0, a0, 1
+	sw	a0, -36(s0)
 	j	kernel_LBB9_4
-kernel_LBB9_4:                                #   inkernel_Loop: Header=BB9_3 Depth=1
+kernel_LBB9_4:
+	lw	a0, -36(s0)
+	lui	a1, %hi(num_stack_pages)
+	lw	a1, %lo(num_stack_pages)(a1)
+	add	a0, a0, a1
+	sw	a0, -40(s0)
+	lw	a0, -40(s0)
+	slli	a0, a0, 2
+	call	heap_alloc
+	sw	a0, -44(s0)
+	li	a0, 0
+	sw	a0, -48(s0)
+	j	kernel_LBB9_5
+kernel_LBB9_5:                                # =>This Innerkernel_Loop Header: Depth=1
+	lw	a0, -48(s0)
+	lw	a1, -40(s0)
+	bgeu	a0, a1, kernel_LBB9_10
+	j	kernel_LBB9_6
+kernel_LBB9_6:                                #   inkernel_Loop: Header=BB9_5 Depth=1
 	call	page_alloc
-	lw	a1, -32(s0)
-	lw	a2, -36(s0)
+	lw	a1, -44(s0)
+	lw	a2, -48(s0)
 	slli	a2, a2, 2
 	add	a1, a1, a2
 	sw	a0, 0(a1)
-	lw	a0, -32(s0)
-	lw	a1, -36(s0)
+	lw	a0, -44(s0)
+	lw	a1, -48(s0)
 	slli	a1, a1, 2
 	add	a0, a0, a1
 	lw	a0, 0(a0)
-	bnez	a0, kernel_LBB9_6
-	j	kernel_LBB9_5
-kernel_LBB9_5:                                #   inkernel_Loop: Header=BB9_3 Depth=1
+	bnez	a0, kernel_LBB9_8
+	j	kernel_LBB9_7
+kernel_LBB9_7:                                #   inkernel_Loop: Header=BB9_5 Depth=1
 	lui	a0, %hi(kernel_L.str.3)
 	addi	a0, a0, %lo(kernel_L.str.3)
 	call	print
 	call	syscall_handler_halt
-	j	kernel_LBB9_6
-kernel_LBB9_6:                                #   inkernel_Loop: Header=BB9_3 Depth=1
-	j	kernel_LBB9_7
-kernel_LBB9_7:                                #   inkernel_Loop: Header=BB9_3 Depth=1
-	lw	a0, -36(s0)
+	j	kernel_LBB9_8
+kernel_LBB9_8:                                #   inkernel_Loop: Header=BB9_5 Depth=1
+	j	kernel_LBB9_9
+kernel_LBB9_9:                                #   inkernel_Loop: Header=BB9_5 Depth=1
+	lw	a0, -48(s0)
 	addi	a0, a0, 1
-	sw	a0, -36(s0)
-	j	kernel_LBB9_3
-kernel_LBB9_8:
-	lui	a0, %hi(kernel_L.str.4)
-	addi	a0, a0, %lo(kernel_L.str.4)
-	call	print
-	li	a0, 32
+	sw	a0, -48(s0)
+	j	kernel_LBB9_5
+kernel_LBB9_10:
+	li	a0, 36
 	call	heap_alloc
-	sw	a0, -40(s0)
-	call	ebreak_wrap
+	sw	a0, -52(s0)
 	lui	a0, %hi(kernel_upt_ptr)
 	lw	a0, %lo(kernel_upt_ptr)(a0)
 	call	create_process_upt
-	lw	a1, -40(s0)
-	sw	a0, 16(a1)
-	call	ebreak_wrap
+	lw	a1, -52(s0)
+	sw	a0, 20(a1)
+	lui	a0, %hi(kernel_L.str.4)
+	addi	a0, a0, %lo(kernel_L.str.4)
+	call	print
 	lw	a0, -28(s0)
 	lw	a0, 4(a0)
-	sw	a0, -44(s0)
+	sw	a0, -56(s0)
+	lw	a0, -28(s0)
+	lw	a0, 8(a0)
+	sw	a0, -60(s0)
 	li	a0, 0
-	sw	a0, -48(s0)
-	j	kernel_LBB9_9
-kernel_LBB9_9:                                # =>This Innerkernel_Loop Header: Depth=1
-	lw	a0, -48(s0)
-	lui	a1, %hi(program_size)
-	lw	a1, %lo(program_size)(a1)
+	sw	a0, -64(s0)
+	j	kernel_LBB9_11
+kernel_LBB9_11:                               # =>This Innerkernel_Loop Header: Depth=1
+	lw	a0, -64(s0)
+	lw	a1, -36(s0)
+	bgeu	a0, a1, kernel_LBB9_17
+	j	kernel_LBB9_12
+kernel_LBB9_12:                               #   inkernel_Loop: Header=BB9_11 Depth=1
+	lw	a0, -56(s0)
+	lw	a1, -64(s0)
 	lui	a2, %hi(page_size)
-	lw	a2, %lo(page_size)(a2)
-	divu	a1, a1, a2
-	bge	a0, a1, kernel_LBB9_12
-	j	kernel_LBB9_10
-kernel_LBB9_10:                               #   inkernel_Loop: Header=BB9_9 Depth=1
-	lw	a1, -44(s0)
-	lw	a2, -48(s0)
-	lui	a0, %hi(page_size)
-	lw	a3, %lo(page_size)(a0)
-	mul	a2, a2, a3
-	add	a2, a1, a2
+	lw	a3, %lo(page_size)(a2)
+	mul	a1, a1, a3
+	add	a0, a0, a1
+	sw	a0, -68(s0)
+	lw	a0, -68(s0)
 	lui	a1, %hi(DMA_portal_ptr)
 	lw	a3, %lo(DMA_portal_ptr)(a1)
-	sw	a2, 0(a3)
-	lw	a2, -32(s0)
-	lw	a3, -48(s0)
+	sw	a0, 0(a3)
+	lw	a0, -44(s0)
+	lw	a3, -64(s0)
 	slli	a3, a3, 2
-	add	a2, a2, a3
-	lw	a2, 0(a2)
-	lw	a3, %lo(DMA_portal_ptr)(a1)
-	sw	a2, 4(a3)
+	add	a0, a0, a3
+	lw	a0, 0(a0)
+	lw	a1, %lo(DMA_portal_ptr)(a1)
+	sw	a0, 4(a1)
+	lw	a0, -68(s0)
+	lw	a1, -60(s0)
+	lw	a2, %lo(page_size)(a2)
+	remu	a2, a1, a2
+	sub	a1, a1, a2
+	beq	a0, a1, kernel_LBB9_14
+	j	kernel_LBB9_13
+kernel_LBB9_13:                               #   inkernel_Loop: Header=BB9_11 Depth=1
+	lui	a0, %hi(page_size)
 	lw	a0, %lo(page_size)(a0)
+	sw	a0, -100(s0)                    # 4-byte Folded Spill
+	j	kernel_LBB9_15
+kernel_LBB9_14:                               #   inkernel_Loop: Header=BB9_11 Depth=1
+	lw	a0, -60(s0)
+	lui	a1, %hi(page_size)
+	lw	a1, %lo(page_size)(a1)
+	remu	a0, a0, a1
+	sw	a0, -100(s0)                    # 4-byte Folded Spill
+	j	kernel_LBB9_15
+kernel_LBB9_15:                               #   inkernel_Loop: Header=BB9_11 Depth=1
+	lw	a0, -100(s0)                    # 4-byte Folded Reload
+	lui	a1, %hi(DMA_portal_ptr)
 	lw	a1, %lo(DMA_portal_ptr)(a1)
 	sw	a0, 8(a1)
-	j	kernel_LBB9_11
-kernel_LBB9_11:                               #   inkernel_Loop: Header=BB9_9 Depth=1
-	lw	a0, -48(s0)
+	j	kernel_LBB9_16
+kernel_LBB9_16:                               #   inkernel_Loop: Header=BB9_11 Depth=1
+	lw	a0, -64(s0)
 	addi	a0, a0, 1
-	sw	a0, -48(s0)
-	j	kernel_LBB9_9
-kernel_LBB9_12:
-	lw	a0, -12(s0)
-	lw	a1, -40(s0)
-	sw	a0, 8(a1)
-	lw	a0, -32(s0)
-	lw	a1, -40(s0)
-	sw	a0, 12(a1)
-	lui	a0, %hi(program_size)
-	lw	a0, %lo(program_size)(a0)
-	lw	a1, -40(s0)
-	sw	a0, 24(a1)
-	lw	a1, -40(s0)
+	sw	a0, -64(s0)
+	j	kernel_LBB9_11
+kernel_LBB9_17:
 	li	a0, 0
-	sw	a0, 20(a1)
-	lw	a1, -40(s0)
+	sw	a0, -72(s0)
+	j	kernel_LBB9_18
+kernel_LBB9_18:                               # =>This Innerkernel_Loop Header: Depth=1
+	lw	a0, -72(s0)
+	lw	a1, -36(s0)
+	bgeu	a0, a1, kernel_LBB9_21
+	j	kernel_LBB9_19
+kernel_LBB9_19:                               #   inkernel_Loop: Header=BB9_18 Depth=1
+	lw	a0, -72(s0)
+	lui	a1, %hi(page_size)
+	lw	a1, %lo(page_size)(a1)
+	mul	a0, a0, a1
+	lui	a1, 524288
+	add	a0, a0, a1
+	sw	a0, -76(s0)
+	lw	a0, -44(s0)
+	lw	a1, -72(s0)
+	slli	a1, a1, 2
+	add	a0, a0, a1
+	lw	a0, 0(a0)
+	ori	a0, a0, 1023
+	sw	a0, -80(s0)
+	lw	a0, -52(s0)
+	lw	a0, 20(a0)
+	lw	a1, -76(s0)
+	lw	a2, -80(s0)
+	call	set_pte
+	j	kernel_LBB9_20
+kernel_LBB9_20:                               #   inkernel_Loop: Header=BB9_18 Depth=1
+	lw	a0, -72(s0)
+	addi	a0, a0, 1
+	sw	a0, -72(s0)
+	j	kernel_LBB9_18
+kernel_LBB9_21:
+	li	a0, 0
+	sw	a0, -84(s0)
+	j	kernel_LBB9_22
+kernel_LBB9_22:                               # =>This Innerkernel_Loop Header: Depth=1
+	lw	a0, -84(s0)
+	lui	a1, %hi(num_stack_pages)
+	lw	a1, %lo(num_stack_pages)(a1)
+	bgeu	a0, a1, kernel_LBB9_25
+	j	kernel_LBB9_23
+kernel_LBB9_23:                               #   inkernel_Loop: Header=BB9_22 Depth=1
+	lw	a0, -84(s0)
+	lui	a1, %hi(page_size)
+	lw	a1, %lo(page_size)(a1)
+	mul	a1, a0, a1
+	lui	a0, 1048574
+	sub	a0, a0, a1
+	sw	a0, -88(s0)
+	lw	a0, -44(s0)
+	lw	a1, -36(s0)
+	lw	a2, -84(s0)
+	add	a1, a1, a2
+	slli	a1, a1, 2
+	add	a0, a0, a1
+	lw	a0, 0(a0)
+	ori	a0, a0, 1023
+	sw	a0, -92(s0)
+	lw	a0, -52(s0)
+	lw	a0, 20(a0)
+	lw	a1, -88(s0)
+	lw	a2, -92(s0)
+	call	set_pte
+	j	kernel_LBB9_24
+kernel_LBB9_24:                               #   inkernel_Loop: Header=BB9_22 Depth=1
+	lw	a0, -84(s0)
+	addi	a0, a0, 1
+	sw	a0, -84(s0)
+	j	kernel_LBB9_22
+kernel_LBB9_25:
+	lw	a0, -12(s0)
+	lw	a1, -52(s0)
+	sw	a0, 8(a1)
+	lw	a0, -44(s0)
+	lw	a1, -52(s0)
+	sw	a0, 12(a1)
+	lw	a1, -52(s0)
+	lui	a0, 1048575
 	sw	a0, 28(a1)
+	lw	a1, -52(s0)
+	lui	a0, 524288
+	sw	a0, 24(a1)
+	lw	a1, -52(s0)
+	li	a0, 0
+	sw	a0, 32(a1)
 	lw	a0, -40(s0)
+	lw	a1, -52(s0)
+	sw	a0, 16(a1)
+	lw	a0, -52(s0)
 	lui	a1, %hi(curr_process)
 	sw	a0, %lo(curr_process)(a1)
 	lui	a0, %hi(process_head)
 	lw	a1, %lo(process_head)(a0)
 	lw	a1, 0(a1)
-	lw	a2, -40(s0)
+	lw	a2, -52(s0)
 	sw	a1, 0(a2)
 	lw	a1, %lo(process_head)(a0)
-	lw	a2, -40(s0)
+	lw	a2, -52(s0)
 	sw	a1, 4(a2)
 	lw	a1, %lo(process_head)(a0)
 	lw	a0, 0(a1)
-	beq	a0, a1, kernel_LBB9_14
-	j	kernel_LBB9_13
-kernel_LBB9_13:
-	lw	a0, -40(s0)
+	beq	a0, a1, kernel_LBB9_27
+	j	kernel_LBB9_26
+kernel_LBB9_26:
+	lw	a0, -52(s0)
 	lui	a1, %hi(process_head)
 	lw	a1, %lo(process_head)(a1)
 	lw	a1, 0(a1)
 	sw	a0, 4(a1)
-	j	kernel_LBB9_14
-kernel_LBB9_14:
-	lw	a1, -40(s0)
+	j	kernel_LBB9_27
+kernel_LBB9_27:
+	lw	a1, -52(s0)
 	lui	a0, %hi(process_head)
 	lw	a2, %lo(process_head)(a0)
 	sw	a1, 0(a2)
 	lw	a1, %lo(process_head)(a0)
 	lw	a0, 4(a1)
-	bne	a0, a1, kernel_LBB9_16
-	j	kernel_LBB9_15
-kernel_LBB9_15:
-	lw	a0, -40(s0)
+	bne	a0, a1, kernel_LBB9_29
+	j	kernel_LBB9_28
+kernel_LBB9_28:
+	lw	a0, -52(s0)
 	lui	a1, %hi(process_head)
 	lw	a1, %lo(process_head)(a1)
 	sw	a0, 4(a1)
-	j	kernel_LBB9_16
-kernel_LBB9_16:
+	j	kernel_LBB9_29
+kernel_LBB9_29:
+	lui	a0, %hi(kernel_L.str.5)
+	addi	a0, a0, %lo(kernel_L.str.5)
+	call	print
 	lui	a0, %hi(curr_process)
 	lw	a0, %lo(curr_process)(a0)
 	call	jump_to_next_ROM
-	j	kernel_LBB9_17
-kernel_LBB9_17:
-	lw	ra, 60(sp)                      # 4-byte Folded Reload
-	lw	s0, 56(sp)                      # 4-byte Folded Reload
-	addi	sp, sp, 64
+	j	kernel_LBB9_30
+kernel_LBB9_30:
+	lw	ra, 108(sp)                     # 4-byte Folded Reload
+	lw	s0, 104(sp)                     # 4-byte Folded Reload
+	addi	sp, sp, 112
 	ret
 kernel_Lfunc_end9:
 	.size	run_ROM, kernel_Lfunc_end9-run_ROM
@@ -733,409 +858,6 @@ kernel_LBB10_4:
 kernel_Lfunc_end10:
 	.size	create_process_upt, kernel_Lfunc_end10-create_process_upt
                                         # -- End function
-	.globl	run_programs                    # -- Begin function run_programs
-	.p2align	2
-	.type	run_programs,@function
-run_programs:                           # @run_programs
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	lui	a2, %hi(run_programs.next_program_ROM)
-	lw	a0, %lo(run_programs.next_program_ROM)(a2)
-	addi	a1, a0, 1
-	sw	a1, %lo(run_programs.next_program_ROM)(a2)
-	call	run_ROM
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end11:
-	.size	run_programs, kernel_Lfunc_end11-run_programs
-                                        # -- End function
-	.globl	end_process                     # -- Begin function end_process
-	.p2align	2
-	.type	end_process,@function
-end_process:                            # @end_process
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	lui	a0, %hi(kernel_L.str.5)
-	addi	a0, a0, %lo(kernel_L.str.5)
-	call	print
-	li	a0, 0
-	sw	a0, -12(s0)
-	j	kernel_LBB12_1
-kernel_LBB12_1:                               # =>This Innerkernel_Loop Header: Depth=1
-	lw	a0, -12(s0)
-	lui	a1, %hi(program_size)
-	lw	a1, %lo(program_size)(a1)
-	lui	a2, %hi(page_size)
-	lw	a2, %lo(page_size)(a2)
-	divu	a1, a1, a2
-	bge	a0, a1, kernel_LBB12_4
-	j	kernel_LBB12_2
-kernel_LBB12_2:                               #   inkernel_Loop: Header=BB12_1 Depth=1
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	lw	a0, 12(a0)
-	lw	a1, -12(s0)
-	slli	a1, a1, 2
-	add	a0, a0, a1
-	lw	a0, 0(a0)
-	call	ram_free
-	j	kernel_LBB12_3
-kernel_LBB12_3:                               #   inkernel_Loop: Header=BB12_1 Depth=1
-	lw	a0, -12(s0)
-	addi	a0, a0, 1
-	sw	a0, -12(s0)
-	j	kernel_LBB12_1
-kernel_LBB12_4:
-	lui	a0, %hi(curr_process)
-	lw	a1, %lo(curr_process)(a0)
-	sw	a1, -16(s0)
-	lw	a1, %lo(curr_process)(a0)
-	lw	a1, 0(a1)
-	sw	a1, %lo(curr_process)(a0)
-	lw	a1, %lo(curr_process)(a0)
-	lw	a0, 0(a1)
-	lw	a1, 4(a1)
-	bne	a0, a1, kernel_LBB12_6
-	j	kernel_LBB12_5
-kernel_LBB12_5:
-	lui	a1, %hi(process_head)
-	li	a0, 0
-	sw	a0, %lo(process_head)(a1)
-	lui	a0, %hi(kernel_L.str.6)
-	addi	a0, a0, %lo(kernel_L.str.6)
-	call	print
-	lui	a0, %hi(kernel_L.str.7)
-	addi	a0, a0, %lo(kernel_L.str.7)
-	call	print
-	call	syscall_handler_halt
-	j	kernel_LBB12_13
-kernel_LBB12_6:
-	lui	a0, %hi(process_head)
-	lw	a0, %lo(process_head)(a0)
-	lw	a1, -16(s0)
-	bne	a0, a1, kernel_LBB12_11
-	j	kernel_LBB12_7
-kernel_LBB12_7:
-	lw	a1, -16(s0)
-	lw	a0, 0(a1)
-	bne	a0, a1, kernel_LBB12_9
-	j	kernel_LBB12_8
-kernel_LBB12_8:
-	lui	a1, %hi(process_head)
-	li	a0, 0
-	sw	a0, %lo(process_head)(a1)
-	j	kernel_LBB12_10
-kernel_LBB12_9:
-	lw	a0, -16(s0)
-	lw	a1, 0(a0)
-	lui	a0, %hi(process_head)
-	sw	a1, %lo(process_head)(a0)
-	lw	a1, -16(s0)
-	lw	a1, 4(a1)
-	lw	a2, %lo(process_head)(a0)
-	sw	a1, 4(a2)
-	lw	a0, %lo(process_head)(a0)
-	lw	a1, -16(s0)
-	lw	a1, 4(a1)
-	sw	a0, 0(a1)
-	j	kernel_LBB12_10
-kernel_LBB12_10:
-	j	kernel_LBB12_12
-kernel_LBB12_11:
-	lw	a1, -16(s0)
-	lw	a0, 0(a1)
-	lw	a1, 4(a1)
-	sw	a0, 0(a1)
-	lw	a1, -16(s0)
-	lw	a0, 4(a1)
-	lw	a1, 0(a1)
-	sw	a0, 4(a1)
-	j	kernel_LBB12_12
-kernel_LBB12_12:
-	lw	a0, -16(s0)
-	call	heap_free
-	j	kernel_LBB12_13
-kernel_LBB12_13:
-	lui	a0, %hi(kernel_L.str.7)
-	addi	a0, a0, %lo(kernel_L.str.7)
-	call	print
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	lw	a0, 20(a0)
-	bnez	a0, kernel_LBB12_15
-	j	kernel_LBB12_14
-kernel_LBB12_14:
-	lui	a0, %hi(process_head)
-	lw	a0, %lo(process_head)(a0)
-	lw	a0, 0(a0)
-	lui	a1, %hi(curr_process)
-	sw	a0, %lo(curr_process)(a1)
-	j	kernel_LBB12_15
-kernel_LBB12_15:
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	call	jump_to_next_ROM
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end12:
-	.size	end_process, kernel_Lfunc_end12-end_process
-                                        # -- End function
-	.globl	update_curr_process             # -- Begin function update_curr_process
-	.p2align	2
-	.type	update_curr_process,@function
-update_curr_process:                    # @update_curr_process
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -16(s0)
-	lui	a1, %hi(page_size)
-	lw	a1, %lo(page_size)(a1)
-	divu	a0, a0, a1
-	lui	a1, %hi(curr_process)
-	lw	a2, %lo(curr_process)(a1)
-	sw	a0, 28(a2)
-	lw	a0, -12(s0)
-	lw	a2, %lo(curr_process)(a1)
-	lw	a3, 12(a2)
-	lw	a4, 28(a2)
-	slli	a4, a4, 2
-	add	a3, a3, a4
-	lw	a3, 0(a3)
-	add	a0, a0, a3
-	sw	a0, 24(a2)
-	lw	a0, -16(s0)
-	lw	a1, %lo(curr_process)(a1)
-	lw	a2, 12(a1)
-	lw	a3, 28(a1)
-	slli	a3, a3, 2
-	add	a2, a2, a3
-	lw	a2, 0(a2)
-	add	a0, a0, a2
-	sw	a0, 20(a1)
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end13:
-	.size	update_curr_process, kernel_Lfunc_end13-update_curr_process
-                                        # -- End function
-	.globl	alarm_next_program              # -- Begin function alarm_next_program
-	.p2align	2
-	.type	alarm_next_program,@function
-alarm_next_program:                     # @alarm_next_program
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	lui	a0, %hi(kernel_L.str.8)
-	addi	a0, a0, %lo(kernel_L.str.8)
-	call	print
-	lui	a0, %hi(curr_process)
-	lw	a1, %lo(curr_process)(a0)
-	lw	a1, 0(a1)
-	sw	a1, %lo(curr_process)(a0)
-	lw	a0, %lo(curr_process)(a0)
-	lw	a0, 20(a0)
-	bnez	a0, kernel_LBB14_2
-	j	kernel_LBB14_1
-kernel_LBB14_1:
-	lui	a0, %hi(process_head)
-	lw	a0, %lo(process_head)(a0)
-	lw	a0, 0(a0)
-	lui	a1, %hi(curr_process)
-	sw	a0, %lo(curr_process)(a1)
-	j	kernel_LBB14_2
-kernel_LBB14_2:
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	call	jump_to_next_ROM
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end14:
-	.size	alarm_next_program, kernel_Lfunc_end14-alarm_next_program
-                                        # -- End function
-	.globl	restore_sp                      # -- Begin function restore_sp
-	.p2align	2
-	.type	restore_sp,@function
-restore_sp:                             # @restore_sp
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	lw	a0, 20(a0)
-	bnez	a0, kernel_LBB15_2
-	j	kernel_LBB15_1
-kernel_LBB15_1:
-	lui	a0, %hi(process_head)
-	lw	a0, %lo(process_head)(a0)
-	lw	a0, 0(a0)
-	lui	a1, %hi(curr_process)
-	sw	a0, %lo(curr_process)(a1)
-	j	kernel_LBB15_2
-kernel_LBB15_2:
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	lw	a0, 24(a0)
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end15:
-	.size	restore_sp, kernel_Lfunc_end15-restore_sp
-                                        # -- End function
-	.globl	get_base                        # -- Begin function get_base
-	.p2align	2
-	.type	get_base,@function
-get_base:                               # @get_base
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	lw	a0, 20(a0)
-	bnez	a0, kernel_LBB16_2
-	j	kernel_LBB16_1
-kernel_LBB16_1:
-	lui	a0, %hi(process_head)
-	lw	a0, %lo(process_head)(a0)
-	lw	a0, 0(a0)
-	lui	a1, %hi(curr_process)
-	sw	a0, %lo(curr_process)(a1)
-	j	kernel_LBB16_2
-kernel_LBB16_2:
-	lui	a0, %hi(curr_process)
-	lw	a1, %lo(curr_process)(a0)
-	lw	a0, 12(a1)
-	lw	a1, 28(a1)
-	slli	a1, a1, 2
-	add	a0, a0, a1
-	lw	a0, 0(a0)
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end16:
-	.size	get_base, kernel_Lfunc_end16-get_base
-                                        # -- End function
-	.globl	get_limit                       # -- Begin function get_limit
-	.p2align	2
-	.type	get_limit,@function
-get_limit:                              # @get_limit
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	lui	a0, %hi(curr_process)
-	lw	a0, %lo(curr_process)(a0)
-	lw	a0, 20(a0)
-	bnez	a0, kernel_LBB17_2
-	j	kernel_LBB17_1
-kernel_LBB17_1:
-	lui	a0, %hi(process_head)
-	lw	a0, %lo(process_head)(a0)
-	lw	a0, 0(a0)
-	lui	a1, %hi(curr_process)
-	sw	a0, %lo(curr_process)(a1)
-	j	kernel_LBB17_2
-kernel_LBB17_2:
-	lui	a0, %hi(curr_process)
-	lw	a1, %lo(curr_process)(a0)
-	lw	a0, 12(a1)
-	lw	a1, 28(a1)
-	slli	a1, a1, 2
-	add	a0, a0, a1
-	lw	a0, 0(a0)
-	lui	a1, %hi(page_size)
-	lw	a1, %lo(page_size)(a1)
-	add	a0, a0, a1
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end17:
-	.size	get_limit, kernel_Lfunc_end17-get_limit
-                                        # -- End function
-	.globl	zero_page                       # -- Begin function zero_page
-	.p2align	2
-	.type	zero_page,@function
-zero_page:                              # @zero_page
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	sw	a0, -12(s0)
-	lw	a0, -12(s0)
-	sw	a0, -16(s0)
-	j	kernel_LBB18_1
-kernel_LBB18_1:                               # =>This Innerkernel_Loop Header: Depth=1
-	lw	a0, -16(s0)
-	lw	a1, -12(s0)
-	addi	a1, a1, 1024
-	bgeu	a0, a1, kernel_LBB18_4
-	j	kernel_LBB18_2
-kernel_LBB18_2:                               #   inkernel_Loop: Header=BB18_1 Depth=1
-	lw	a1, -16(s0)
-	li	a0, 0
-	sw	a0, 0(a1)
-	j	kernel_LBB18_3
-kernel_LBB18_3:                               #   inkernel_Loop: Header=BB18_1 Depth=1
-	lw	a0, -16(s0)
-	addi	a0, a0, 4
-	sw	a0, -16(s0)
-	j	kernel_LBB18_1
-kernel_LBB18_4:
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end18:
-	.size	zero_page, kernel_Lfunc_end18-zero_page
-                                        # -- End function
-	.globl	create_upt                      # -- Begin function create_upt
-	.p2align	2
-	.type	create_upt,@function
-create_upt:                             # @create_upt
-# %bb.0:
-	addi	sp, sp, -16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	addi	s0, sp, 16
-	call	page_alloc
-	sw	a0, -12(s0)
-	lw	a0, -12(s0)
-	call	zero_page
-	lw	a0, -12(s0)
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
-	addi	sp, sp, 16
-	ret
-kernel_Lfunc_end19:
-	.size	create_upt, kernel_Lfunc_end19-create_upt
-                                        # -- End function
 	.globl	set_pte                         # -- Begin function set_pte
 	.p2align	2
 	.type	set_pte,@function
@@ -1156,9 +878,9 @@ set_pte:                                # @set_pte
 	slli	a1, a1, 2
 	add	a0, a0, a1
 	lw	a0, 0(a0)
-	bnez	a0, kernel_LBB20_2
-	j	kernel_LBB20_1
-kernel_LBB20_1:
+	bnez	a0, kernel_LBB11_2
+	j	kernel_LBB11_1
+kernel_LBB11_1:
 	call	page_alloc
 	sw	a0, -28(s0)
 	lw	a0, -28(s0)
@@ -1170,8 +892,8 @@ kernel_LBB20_1:
 	slli	a2, a2, 2
 	add	a1, a1, a2
 	sw	a0, 0(a1)
-	j	kernel_LBB20_2
-kernel_LBB20_2:
+	j	kernel_LBB11_2
+kernel_LBB11_2:
 	lw	a0, -12(s0)
 	lw	a1, -24(s0)
 	slli	a1, a1, 2
@@ -1194,8 +916,409 @@ kernel_LBB20_2:
 	lw	s0, 40(sp)                      # 4-byte Folded Reload
 	addi	sp, sp, 48
 	ret
+kernel_Lfunc_end11:
+	.size	set_pte, kernel_Lfunc_end11-set_pte
+                                        # -- End function
+	.globl	run_programs                    # -- Begin function run_programs
+	.p2align	2
+	.type	run_programs,@function
+run_programs:                           # @run_programs
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	lui	a2, %hi(run_programs.next_program_ROM)
+	lw	a0, %lo(run_programs.next_program_ROM)(a2)
+	addi	a1, a0, 1
+	sw	a1, %lo(run_programs.next_program_ROM)(a2)
+	call	run_ROM
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end12:
+	.size	run_programs, kernel_Lfunc_end12-run_programs
+                                        # -- End function
+	.globl	end_process                     # -- Begin function end_process
+	.p2align	2
+	.type	end_process,@function
+end_process:                            # @end_process
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	lui	a0, %hi(kernel_L.str.6)
+	addi	a0, a0, %lo(kernel_L.str.6)
+	call	print
+	li	a0, 0
+	sw	a0, -12(s0)
+	j	kernel_LBB13_1
+kernel_LBB13_1:                               # =>This Innerkernel_Loop Header: Depth=1
+	lw	a0, -12(s0)
+	lui	a1, %hi(curr_process)
+	lw	a1, %lo(curr_process)(a1)
+	lw	a1, 16(a1)
+	bgeu	a0, a1, kernel_LBB13_4
+	j	kernel_LBB13_2
+kernel_LBB13_2:                               #   inkernel_Loop: Header=BB13_1 Depth=1
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	lw	a0, 12(a0)
+	lw	a1, -12(s0)
+	slli	a1, a1, 2
+	add	a0, a0, a1
+	lw	a0, 0(a0)
+	call	ram_free
+	j	kernel_LBB13_3
+kernel_LBB13_3:                               #   inkernel_Loop: Header=BB13_1 Depth=1
+	lw	a0, -12(s0)
+	addi	a0, a0, 1
+	sw	a0, -12(s0)
+	j	kernel_LBB13_1
+kernel_LBB13_4:
+	lui	a0, %hi(curr_process)
+	lw	a1, %lo(curr_process)(a0)
+	sw	a1, -16(s0)
+	lw	a1, %lo(curr_process)(a0)
+	lw	a1, 0(a1)
+	sw	a1, %lo(curr_process)(a0)
+	lw	a1, %lo(curr_process)(a0)
+	lw	a0, 0(a1)
+	lw	a1, 4(a1)
+	bne	a0, a1, kernel_LBB13_6
+	j	kernel_LBB13_5
+kernel_LBB13_5:
+	lui	a1, %hi(process_head)
+	li	a0, 0
+	sw	a0, %lo(process_head)(a1)
+	lui	a0, %hi(kernel_L.str.7)
+	addi	a0, a0, %lo(kernel_L.str.7)
+	call	print
+	lui	a0, %hi(kernel_L.str.8)
+	addi	a0, a0, %lo(kernel_L.str.8)
+	call	print
+	call	syscall_handler_halt
+	j	kernel_LBB13_13
+kernel_LBB13_6:
+	lui	a0, %hi(process_head)
+	lw	a0, %lo(process_head)(a0)
+	lw	a1, -16(s0)
+	bne	a0, a1, kernel_LBB13_11
+	j	kernel_LBB13_7
+kernel_LBB13_7:
+	lw	a1, -16(s0)
+	lw	a0, 0(a1)
+	bne	a0, a1, kernel_LBB13_9
+	j	kernel_LBB13_8
+kernel_LBB13_8:
+	lui	a1, %hi(process_head)
+	li	a0, 0
+	sw	a0, %lo(process_head)(a1)
+	j	kernel_LBB13_10
+kernel_LBB13_9:
+	lw	a0, -16(s0)
+	lw	a1, 0(a0)
+	lui	a0, %hi(process_head)
+	sw	a1, %lo(process_head)(a0)
+	lw	a1, -16(s0)
+	lw	a1, 4(a1)
+	lw	a2, %lo(process_head)(a0)
+	sw	a1, 4(a2)
+	lw	a0, %lo(process_head)(a0)
+	lw	a1, -16(s0)
+	lw	a1, 4(a1)
+	sw	a0, 0(a1)
+	j	kernel_LBB13_10
+kernel_LBB13_10:
+	j	kernel_LBB13_12
+kernel_LBB13_11:
+	lw	a1, -16(s0)
+	lw	a0, 0(a1)
+	lw	a1, 4(a1)
+	sw	a0, 0(a1)
+	lw	a1, -16(s0)
+	lw	a0, 4(a1)
+	lw	a1, 0(a1)
+	sw	a0, 4(a1)
+	j	kernel_LBB13_12
+kernel_LBB13_12:
+	lw	a0, -16(s0)
+	call	heap_free
+	j	kernel_LBB13_13
+kernel_LBB13_13:
+	lui	a0, %hi(kernel_L.str.8)
+	addi	a0, a0, %lo(kernel_L.str.8)
+	call	print
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	lw	a0, 24(a0)
+	bnez	a0, kernel_LBB13_15
+	j	kernel_LBB13_14
+kernel_LBB13_14:
+	lui	a0, %hi(process_head)
+	lw	a0, %lo(process_head)(a0)
+	lw	a0, 0(a0)
+	lui	a1, %hi(curr_process)
+	sw	a0, %lo(curr_process)(a1)
+	j	kernel_LBB13_15
+kernel_LBB13_15:
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	call	jump_to_next_ROM
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end13:
+	.size	end_process, kernel_Lfunc_end13-end_process
+                                        # -- End function
+	.globl	update_curr_process             # -- Begin function update_curr_process
+	.p2align	2
+	.type	update_curr_process,@function
+update_curr_process:                    # @update_curr_process
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	sw	a0, -12(s0)
+	sw	a1, -16(s0)
+	lw	a0, -16(s0)
+	lui	a1, %hi(page_size)
+	lw	a1, %lo(page_size)(a1)
+	divu	a0, a0, a1
+	lui	a1, %hi(curr_process)
+	lw	a2, %lo(curr_process)(a1)
+	sw	a0, 32(a2)
+	lw	a0, -12(s0)
+	lw	a2, %lo(curr_process)(a1)
+	lw	a3, 12(a2)
+	lw	a4, 32(a2)
+	slli	a4, a4, 2
+	add	a3, a3, a4
+	lw	a3, 0(a3)
+	add	a0, a0, a3
+	sw	a0, 28(a2)
+	lw	a0, -16(s0)
+	lw	a1, %lo(curr_process)(a1)
+	lw	a2, 12(a1)
+	lw	a3, 32(a1)
+	slli	a3, a3, 2
+	add	a2, a2, a3
+	lw	a2, 0(a2)
+	add	a0, a0, a2
+	sw	a0, 24(a1)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end14:
+	.size	update_curr_process, kernel_Lfunc_end14-update_curr_process
+                                        # -- End function
+	.globl	alarm_next_program              # -- Begin function alarm_next_program
+	.p2align	2
+	.type	alarm_next_program,@function
+alarm_next_program:                     # @alarm_next_program
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	lui	a0, %hi(kernel_L.str.9)
+	addi	a0, a0, %lo(kernel_L.str.9)
+	call	print
+	lui	a0, %hi(curr_process)
+	lw	a1, %lo(curr_process)(a0)
+	lw	a1, 0(a1)
+	sw	a1, %lo(curr_process)(a0)
+	lw	a0, %lo(curr_process)(a0)
+	lw	a0, 24(a0)
+	bnez	a0, kernel_LBB15_2
+	j	kernel_LBB15_1
+kernel_LBB15_1:
+	lui	a0, %hi(process_head)
+	lw	a0, %lo(process_head)(a0)
+	lw	a0, 0(a0)
+	lui	a1, %hi(curr_process)
+	sw	a0, %lo(curr_process)(a1)
+	j	kernel_LBB15_2
+kernel_LBB15_2:
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	call	jump_to_next_ROM
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end15:
+	.size	alarm_next_program, kernel_Lfunc_end15-alarm_next_program
+                                        # -- End function
+	.globl	restore_sp                      # -- Begin function restore_sp
+	.p2align	2
+	.type	restore_sp,@function
+restore_sp:                             # @restore_sp
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	lw	a0, 24(a0)
+	bnez	a0, kernel_LBB16_2
+	j	kernel_LBB16_1
+kernel_LBB16_1:
+	lui	a0, %hi(process_head)
+	lw	a0, %lo(process_head)(a0)
+	lw	a0, 0(a0)
+	lui	a1, %hi(curr_process)
+	sw	a0, %lo(curr_process)(a1)
+	j	kernel_LBB16_2
+kernel_LBB16_2:
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	lw	a0, 28(a0)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end16:
+	.size	restore_sp, kernel_Lfunc_end16-restore_sp
+                                        # -- End function
+	.globl	get_base                        # -- Begin function get_base
+	.p2align	2
+	.type	get_base,@function
+get_base:                               # @get_base
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	lw	a0, 24(a0)
+	bnez	a0, kernel_LBB17_2
+	j	kernel_LBB17_1
+kernel_LBB17_1:
+	lui	a0, %hi(process_head)
+	lw	a0, %lo(process_head)(a0)
+	lw	a0, 0(a0)
+	lui	a1, %hi(curr_process)
+	sw	a0, %lo(curr_process)(a1)
+	j	kernel_LBB17_2
+kernel_LBB17_2:
+	lui	a0, %hi(curr_process)
+	lw	a1, %lo(curr_process)(a0)
+	lw	a0, 12(a1)
+	lw	a1, 32(a1)
+	slli	a1, a1, 2
+	add	a0, a0, a1
+	lw	a0, 0(a0)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end17:
+	.size	get_base, kernel_Lfunc_end17-get_base
+                                        # -- End function
+	.globl	get_limit                       # -- Begin function get_limit
+	.p2align	2
+	.type	get_limit,@function
+get_limit:                              # @get_limit
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	lui	a0, %hi(curr_process)
+	lw	a0, %lo(curr_process)(a0)
+	lw	a0, 24(a0)
+	bnez	a0, kernel_LBB18_2
+	j	kernel_LBB18_1
+kernel_LBB18_1:
+	lui	a0, %hi(process_head)
+	lw	a0, %lo(process_head)(a0)
+	lw	a0, 0(a0)
+	lui	a1, %hi(curr_process)
+	sw	a0, %lo(curr_process)(a1)
+	j	kernel_LBB18_2
+kernel_LBB18_2:
+	lui	a0, %hi(curr_process)
+	lw	a1, %lo(curr_process)(a0)
+	lw	a0, 12(a1)
+	lw	a1, 32(a1)
+	slli	a1, a1, 2
+	add	a0, a0, a1
+	lw	a0, 0(a0)
+	lui	a1, %hi(page_size)
+	lw	a1, %lo(page_size)(a1)
+	add	a0, a0, a1
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end18:
+	.size	get_limit, kernel_Lfunc_end18-get_limit
+                                        # -- End function
+	.globl	zero_page                       # -- Begin function zero_page
+	.p2align	2
+	.type	zero_page,@function
+zero_page:                              # @zero_page
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	sw	a0, -12(s0)
+	lw	a0, -12(s0)
+	sw	a0, -16(s0)
+	j	kernel_LBB19_1
+kernel_LBB19_1:                               # =>This Innerkernel_Loop Header: Depth=1
+	lw	a0, -16(s0)
+	lw	a1, -12(s0)
+	addi	a1, a1, 1024
+	bgeu	a0, a1, kernel_LBB19_4
+	j	kernel_LBB19_2
+kernel_LBB19_2:                               #   inkernel_Loop: Header=BB19_1 Depth=1
+	lw	a1, -16(s0)
+	li	a0, 0
+	sw	a0, 0(a1)
+	j	kernel_LBB19_3
+kernel_LBB19_3:                               #   inkernel_Loop: Header=BB19_1 Depth=1
+	lw	a0, -16(s0)
+	addi	a0, a0, 4
+	sw	a0, -16(s0)
+	j	kernel_LBB19_1
+kernel_LBB19_4:
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
+kernel_Lfunc_end19:
+	.size	zero_page, kernel_Lfunc_end19-zero_page
+                                        # -- End function
+	.globl	create_upt                      # -- Begin function create_upt
+	.p2align	2
+	.type	create_upt,@function
+create_upt:                             # @create_upt
+# %bb.0:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
+	sw	s0, 8(sp)                       # 4-byte Folded Spill
+	addi	s0, sp, 16
+	call	page_alloc
+	sw	a0, -12(s0)
+	lw	a0, -12(s0)
+	call	zero_page
+	lw	a0, -12(s0)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	lw	s0, 8(sp)                       # 4-byte Folded Reload
+	addi	sp, sp, 16
+	ret
 kernel_Lfunc_end20:
-	.size	set_pte, kernel_Lfunc_end20-set_pte
+	.size	create_upt, kernel_Lfunc_end20-create_upt
                                         # -- End function
 	.globl	find_last_device                # -- Begin function find_last_device
 	.p2align	2
@@ -1350,12 +1473,12 @@ kernel_L.str.2:
 	.asciz	"Process not found\n"
 	.size	kernel_L.str.2, 19
 
-	.type	program_size,@object            # @program_size
+	.type	num_stack_pages,@object         # @num_stack_pages
 	.section	.sdata,"aw",@progbits
 	.p2align	2, 0x0
-program_size:
-	.word	32768                           # 0x8000
-	.size	program_size, 4
+num_stack_pages:
+	.word	2                               # 0x2
+	.size	num_stack_pages, 4
 
 	.type	kernel_L.str.3,@object                # @.str.3
 	.section	.rodata.str1.1,"aMS",@progbits,1
@@ -1365,8 +1488,8 @@ kernel_L.str.3:
 
 	.type	kernel_L.str.4,@object                # @.str.4
 kernel_L.str.4:
-	.asciz	"Running program...\n"
-	.size	kernel_L.str.4, 20
+	.asciz	"Copying program into RAM...\n"
+	.size	kernel_L.str.4, 29
 
 	.type	curr_process,@object            # @curr_process
 	.section	.sbss,"aw",@nobits
@@ -1375,6 +1498,12 @@ curr_process:
 	.word	0
 	.size	curr_process, 4
 
+	.type	kernel_L.str.5,@object                # @.str.5
+	.section	.rodata.str1.1,"aMS",@progbits,1
+kernel_L.str.5:
+	.asciz	"Running program...\n"
+	.size	kernel_L.str.5, 20
+
 	.type	run_programs.next_program_ROM,@object # @run_programs.next_program_ROM
 	.section	.sdata,"aw",@progbits
 	.p2align	2, 0x0
@@ -1382,26 +1511,26 @@ run_programs.next_program_ROM:
 	.word	3                               # 0x3
 	.size	run_programs.next_program_ROM, 4
 
-	.type	kernel_L.str.5,@object                # @.str.5
-	.section	.rodata.str1.1,"aMS",@progbits,1
-kernel_L.str.5:
-	.asciz	"Ending current process..."
-	.size	kernel_L.str.5, 26
-
 	.type	kernel_L.str.6,@object                # @.str.6
+	.section	.rodata.str1.1,"aMS",@progbits,1
 kernel_L.str.6:
-	.asciz	"(last one)"
-	.size	kernel_L.str.6, 11
+	.asciz	"Ending current process..."
+	.size	kernel_L.str.6, 26
 
 	.type	kernel_L.str.7,@object                # @.str.7
 kernel_L.str.7:
-	.asciz	"done.\n"
-	.size	kernel_L.str.7, 7
+	.asciz	"(last one)"
+	.size	kernel_L.str.7, 11
 
 	.type	kernel_L.str.8,@object                # @.str.8
 kernel_L.str.8:
+	.asciz	"done.\n"
+	.size	kernel_L.str.8, 7
+
+	.type	kernel_L.str.9,@object                # @.str.9
+kernel_L.str.9:
 	.asciz	"Alarm interrupt invoked...\nJumping to next program...\n"
-	.size	kernel_L.str.8, 55
+	.size	kernel_L.str.9, 55
 
 	.type	end_of_statics,@object          # @end_of_statics
 	.data
@@ -1425,11 +1554,10 @@ end_of_statics:
 	.addrsig_sym run_ROM
 	.addrsig_sym print
 	.addrsig_sym find_device
-	.addrsig_sym ebreak_wrap
 	.addrsig_sym create_process_upt
+	.addrsig_sym set_pte
 	.addrsig_sym zero_page
 	.addrsig_sym create_upt
-	.addrsig_sym set_pte
 	.addrsig_sym find_last_device
 	.addrsig_sym free_head
 	.addrsig_sym free_tail
@@ -1442,7 +1570,7 @@ end_of_statics:
 	.addrsig_sym RAM_limit
 	.addrsig_sym process_head
 	.addrsig_sym ROM_device_code
-	.addrsig_sym program_size
+	.addrsig_sym num_stack_pages
 	.addrsig_sym kernel_upt_ptr
 	.addrsig_sym DMA_portal_ptr
 	.addrsig_sym curr_process

@@ -236,7 +236,7 @@ address_t process_head_init(){
 }
 
 void jump_to_next_ROM(process_info_s* curr){
-  userspace_jump(curr->pc);
+  userspace_jump(curr->pc, curr->pt_ptr);
 }
 
 void run_ROM(word_t next_ROM){
@@ -288,19 +288,18 @@ void run_ROM(word_t next_ROM){
     DMA_portal_ptr->dst    = page_frames[i];
     // get the base address of the last page to adjust the size of copying to avoid bus error
     DMA_portal_ptr->length = (curr_src_base != curr_ROM_limit - (curr_ROM_limit % page_size)) ? page_size : curr_ROM_limit % page_size; // Trigger
-    ebreak_wrap();
   }
 
   // mapping the executable image pages to the virtual address space
   for (int i = 0; i < num_exec_pages; i++){
     address_t vpage_addr = 0x80000000 + i * page_size;
-    word_t pte = page_frames[i];
+    word_t pte = page_frames[i] | 0x3ff;
     set_pte((upt_entry_t*) process->pt_ptr, vpage_addr, pte);
   }
   // mapping the stack pages to the virtual address space
   for (int i = 0; i < num_stack_pages; i++){
     address_t vpage_addr = 0xffffe000 - (i * page_size);
-    word_t pte = page_frames[num_exec_pages + i];
+    word_t pte = page_frames[num_exec_pages + i] | 0x3ff;
     set_pte((upt_entry_t*) process->pt_ptr, vpage_addr, pte);
   }
 
@@ -308,7 +307,7 @@ void run_ROM(word_t next_ROM){
   // adding process info to the process list
   process->pid = next_ROM;
   process->page_frames_base = page_frames;
-  process->sp = 0xffffefff; 
+  process->sp = 0xfffff000; 
   process->pc = 0x80000000;
   process->curr_page_idx = 0;
   process->num_page_frames = num_pages;
