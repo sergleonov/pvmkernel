@@ -52,7 +52,7 @@ Set the field `mainMemoryPages` to `64` to enable concurrent running of test pro
 
 ## Implementation Comments
 
-We are currently setting all the metadata bits to one in the user program and and in the kernel. This is not the best practice as it allows user to access kernel code.
+We are currently setting all the metadata bits to one in the user program and in the kernel. This is not the best practice as it allows user to access kernel code.
 
 ## Page tables
 
