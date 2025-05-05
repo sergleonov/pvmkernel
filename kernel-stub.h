@@ -9,7 +9,7 @@
  *
  * \param pc The program counter in the user-space program to which to jump.
  */
-void userspace_jump (address_t pc);
+void userspace_jump (address_t pc, address_t pt_ptr);
 
 /**
  * Copy the given PC value into CSR epc, then eret, and restore registers from stack as well as fp and sp from process list.
@@ -38,6 +38,9 @@ void syscall_handler_halt();
  */
 void print (char* msg);
 
+extern void ebreak_wrap();
+extern void ebreak_wrap_args(int a, ...);
+
 extern uint32_t none_device_code;
 extern uint32_t controller_device_code;
 extern uint32_t ROM_device_code;
@@ -48,5 +51,7 @@ extern uint32_t block_device_code;
 extern address_t     RAM_limit;
 extern address_t     kernel_limit;
 extern DMA_portal_s* DMA_portal_ptr;
+
+extern address_t     kernel_upt_ptr;
 
 #endif 

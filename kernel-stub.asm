@@ -337,7 +337,7 @@ do_exit:
 
 	## Remove process from the process table and free RAM space
 	call 	end_process
-
+	ebreak
 	## Epilogue: If we are here, no program ran, so restore and return.
 	lw		ra,		4(sp)						# Restore ra
 	lw		fp,		0(sp)						# Restore fp
@@ -351,8 +351,10 @@ do_exit:
 ### Procedure: syscall_handler
 
 syscall_handler:	
-
-	csrw 	md,		zero
+	
+	# reset mode register
+	addi  	t0, zero,	12
+	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
 	csrr 	t1, 	epc
@@ -373,7 +375,7 @@ syscall_handler:
 
 	lw 		a0,		0(sp)
 	lw		a1,		4(sp)
-
+	ebreak
 	## Dispatch on the requested syscall.
 	lw		t0,		syscall_EXIT
 	beq		a0,		t0,		handle_exit			# Is it an EXIT request?
@@ -392,13 +394,13 @@ syscall_handler:
 
 handle_run:
 	
-	mv a0, a1
-	call run_ROM
-	j syscall_handler_halt
+	mv 		a0, 	a1
+	call 	run_ROM
+	j 		syscall_handler_halt
 
 handle_print:
 
-	mv a0, a1
+	mv 		a0, 	a1
 
 	# preserve address of string
 	addi 	sp, 	sp, 	-4
@@ -439,7 +441,9 @@ syscall_handler_halt:
 
 alarm_handler:
 
-	csrw 	md, 	zero
+	# reset mode register
+	addi  	t0, 	zero,	12
+	csrw 	md,		t0
 	# keep the sp and fp of the process to be used as arguments
 	add 	t0, 	sp, 	zero
 	csrr 	t1, 	epc
@@ -470,7 +474,9 @@ alarm_handler:
 
 default_handler:
 
-	csrw 	md, 	zero
+	# reset mode register
+	addi  	t0, zero, 	12
+	csrw 	md,		t0
 	# If we are here, we probably want to look around.
 	ebreak
 	
@@ -536,38 +542,36 @@ init_trap_table:
 ### Procedure: userspace_jump
 
 userspace_jump:
-	addi		sp,		sp,		-4
-	sw			a0,		0(sp)
 
-	call get_base
-	csrw	bs,		a0
-	lw		t0,		0(sp)
-	sub		a0,		t0,		a0
 	csrw		epc,		a0
-
-	call get_limit
-	csrw	lm,		a0
+	csrw		pt,			a1
 	
 	call restore_sp
 	add		sp,			zero, 			a0
-	call	get_base
 
-	sub		sp,			sp,				a0
 
 	# set quanta
-	csrr 	t0,		ck
-	lw 		t1,		alarm_quanta
-	add 	t0, 	t1,		t0
-	csrw 	al,		t0
+	#csrr 	t0,		ck
+	#lw 		t1,		alarm_quanta
+	#add 	t0, 	t1,		t0
+	#csrw 	al,		t0
 
 	# enable alarm and virtual addressing
-	addi 	t0,		zero, 	20
-	csrw 	md,		t0
+	#addi 	t0,		zero, 	28
+	#csrw 	md,		t0
 	#load base and limit values to bs and lm, for mmu
 	#activate virtual addressing and alarm and then jump
 	eret
 ### ================================================================================================================================
 	
+
+ebreak_wrap:
+	ebreak
+	ret
+ebreak_wrap_args:
+	ebreak
+	ret
+
 	
 ### ================================================================================================================================
 ### Procedure: main
@@ -612,6 +616,7 @@ main_with_console:
 	la		a0,		attribution_msg					# arg[0] = attribution_msg
 	call		print
 
+
 	## Call init_trap_table(), then finally restore the frame.
 	la		a0,		initializing_tt_msg				# arg[0] = initializing_tt_msg
 	call		print
@@ -620,16 +625,23 @@ main_with_console:
 	la		a0,		done_msg					# arg[0] = done_msg
 	call		print
 
-	## Transition into virtual addressing 
-	call create_kernel_upt
-	csrw pt, a0
-	addi t0, zero, 12
-	csrw md, t0
+
 
 	## Call ram_init()
 	la 		a0, 	initializing_ram_list_msg
 	call 	print
 	call 	ram_init
+	la 		a0, 	done_msg
+	call 	print
+
+		## Transition into virtual addressing 
+	la 		a0, 	initialzing_kernel_pt_msg
+	call 	print
+	call 	create_kernel_upt
+	csrw 	pt, 	a0
+	sw		a0, 	kernel_upt_ptr,	t6
+	addi 	t0, 	zero, 	12
+	csrw 	md, 	t0
 	la 		a0, 	done_msg
 	call 	print
 
@@ -720,6 +732,9 @@ kernel_limit:		0
 DMA_portal_ptr:		0
 statics_limit:		0	#store the limit of the kernel statics
 alarm_quanta:		1000
+
+## project 3
+kernel_upt_ptr:		0
 ### ================================================================================================================================
 
 
@@ -742,6 +757,7 @@ no_programs_msg:		"ERROR: No programs provided.\n"
 default_handler_msg:		"Default interrupt handler invoked.\n"
 initializing_ram_list_msg:  "Initializing RAM free block..."
 initializing_process_head_msg: "Initializing process list head..."
+initialzing_kernel_pt_msg:  	"Initializing kernel upper page table..."
 done_msg:			"done.\n"
 failed_msg:			"failed!\n"
 blank_line:			"                                                                                "

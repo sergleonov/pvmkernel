@@ -31,11 +31,12 @@ typedef struct process_info {
   struct process_info* next;
   struct process_info* prev;
   word_t        pid;
-  address_t    base;
-  address_t    limit;
+  address_t*    page_frames_base;
+  word_t        num_page_frames;
+  address_t     pt_ptr;
   word_t        pc;
   word_t        sp;
-
+  word_t        curr_page_idx;
 } process_info_s;
 
 typedef struct header {
@@ -45,5 +46,12 @@ typedef struct header {
   struct header* prev;
   
 } header_s;
+
+/* Define a type for each entry of an upper page-table. */
+typedef address_t upt_entry_t;
+
+/* Define a type for each entry in the lower page-table. */
+typedef address_t pte_t;
+
 
 #endif /* _TYPES_H */

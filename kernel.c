@@ -22,23 +22,57 @@
 #define BYTES_PER_WORD  4
 #define BITS_PER_BYTE   8
 #define BITS_PER_NYBBLE 4
+#define BYTES_PER_PAGE 4096
+#define WORDS_PER_PAGE (BYTES_PER_PAGE / BYTES_PER_WORD)
+
+#define PTE_MAPPED_BIT     1//0
+#define PTE_RESIDENT_BIT   2//1
+#define PTE_SREAD_BIT      4//2
+#define PTE_SWRITE_BIT     8//3
+#define PTE_SEXEC_BIT      16//4
+#define PTE_UREAD_BIT      32//5
+#define PTE_UWRITE_BIT     64//6
+#define PTE_UEXEC_BIT      128//7
+#define PTE_REFERENCED_BIT 256//8
+#define PTE_DIRTY_BIT      512//9
+
+#define GET_BIT(pte,bit) (pte & (1 << bit))
+#define CLEAR_BIT(pte,bit) (pte & ~(1 << bit))
+#define SET_BIT(pte,bit) (pte | (1 << bit))
+
+#define UPT_INDEX(vaddr) (vaddr >> 22)
+#define LPT_INDEX(vaddr) ((vaddr >> 12) & 0x3ff)
+#define OFFSET(vaddr) (vaddr & 0xfff)
 
 static char hex_digits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 static address_link_s* RAM_head = NULL;
 static process_info_s* process_head = NULL;
 static process_info_s* curr_process = NULL;
-
 /* The externally provided end of the statics, at which the heap will begin. */
 extern address_t statics_limit;
+/* externally provided base address of the device table*/
+extern dt_entry_s* device_table_base;
 /* The current limit of the heap. */
 static address_t heap_limit = (address_t)NULL;
-static word_t program_size = 0x8000;
+static word_t page_size = 0x1000;
+static word_t num_stack_pages = 2;
 /* A pair of sentinels to the free list, making the coding easier. */
  header_s free_head = { .next = NULL, .prev = NULL, .size = 0 };
  header_s free_tail = { .next = NULL, .prev = NULL, .size = 0 };
 
 
 
+
+/* =============================================================================================================================== */
+
+
+
+/* =============================================================================================================================== */
+/* FUNCTION SIGNATURES */
+
+upt_entry_t* create_upt ();
+upt_entry_t* create_process_upt(upt_entry_t* kernel_upt);
+void set_pte (upt_entry_t* upt, address_t vpage_addr, word_t pte);
 
 /* =============================================================================================================================== */
 
@@ -158,7 +192,7 @@ void ram_init(){
   RAM_head->val = kernel_limit;
   RAM_head->next = NULL;
   RAM_head->prev = NULL;
-  for (address_t i = kernel_limit + program_size; i < RAM_limit; i+=program_size){
+  for (address_t i = kernel_limit + page_size; i < RAM_limit; i+=page_size){
     address_link_s* node = (address_link_s*)heap_alloc(sizeof(*node));
     node->val = i; 
     node->next = NULL;
@@ -167,11 +201,14 @@ void ram_init(){
   }
 }
 
-address_t ram_alloc(){
+address_t page_alloc(){
 
   if (RAM_head != NULL) {
+
     address_t toRet = RAM_head->val;
+    address_link_s* toFree = RAM_head;
     REMOVE(RAM_head, RAM_head);
+    heap_free(toFree);
     return toRet;
   }
   return NULL;
@@ -185,19 +222,21 @@ void ram_free(address_t address){
   
 }
 
-void process_head_init(){
+address_t process_head_init(){
   process_head = heap_alloc(sizeof(*process_head));
   process_head->prev = process_head;
   process_head->next = process_head;
   process_head->sp = NULL;
   process_head->pc = NULL;
   process_head->pid = NULL;
-  process_head->base = NULL;
-  process_head->limit = NULL;
+  process_head->curr_page_idx = NULL;
+  process_head->pt_ptr = NULL;
+
+  return (address_t) process_head;
 }
 
 void jump_to_next_ROM(process_info_s* curr){
-  userspace_jump(curr->pc);
+  userspace_jump(curr->pc, curr->pt_ptr);
 }
 
 void run_ROM(word_t next_ROM){
@@ -213,30 +252,71 @@ void run_ROM(word_t next_ROM){
     return;
   }
 
-  address_t addr = ram_alloc();
-  if (addr == 0) {
-    print("No more RAM space.\n");
-    syscall_handler_halt();
+  word_t curr_exec_image_size = dt_ROM_ptr->limit - dt_ROM_ptr->base;
+  
+  // calculating number of pages per program
+  word_t num_exec_pages = curr_exec_image_size / page_size;
+  if (curr_exec_image_size % page_size != 0) {
+    num_exec_pages++;
   }
-  print("Running program...\n");
+  word_t num_pages = num_exec_pages + num_stack_pages;  // allocating pages for executable image and extra for stack
+  // create array to store the page frames
+  address_t* page_frames = heap_alloc(num_pages * sizeof(address_t));  
+
+  // allocate pages for the process
+  for (int i = 0; i < num_pages; i++){
+    page_frames[i] = page_alloc();
+    if (page_frames[i] == 0) {
+      print("No more RAM space.\n");
+      syscall_handler_halt();
+    }
+  }
   /* Copy the program into the free RAM space after the kernel. */
-  DMA_portal_ptr->src    = dt_ROM_ptr->base;
-  DMA_portal_ptr->dst    = addr;
-  DMA_portal_ptr->length = dt_ROM_ptr->limit - dt_ROM_ptr->base; // Trigger
+
+  // Start the process info struct
+  process_info_s* process = heap_alloc(sizeof(*process));
+  process->pt_ptr = (address_t) create_process_upt((upt_entry_t*) kernel_upt_ptr);
+  print("Copying program into RAM...\n");
+
+  address_t curr_ROM_base = dt_ROM_ptr->base;
+  address_t curr_ROM_limit = dt_ROM_ptr->limit;
+
+  // copy program from ROM to RAM
+  for (int i = 0; i < num_exec_pages; i++){
+    address_t curr_src_base = curr_ROM_base + i * page_size;
+    DMA_portal_ptr->src    = curr_src_base;
+    DMA_portal_ptr->dst    = page_frames[i];
+    // get the base address of the last page to adjust the size of copying to avoid bus error
+    DMA_portal_ptr->length = (curr_src_base != curr_ROM_limit - (curr_ROM_limit % page_size)) ? page_size : curr_ROM_limit % page_size; // Trigger
+  }
+
+  // mapping the executable image pages to the virtual address space
+  for (int i = 0; i < num_exec_pages; i++){
+    address_t vpage_addr = 0x80000000 + i * page_size;
+    word_t pte = page_frames[i] | 0x3ff;
+    set_pte((upt_entry_t*) process->pt_ptr, vpage_addr, pte);
+  }
+  // mapping the stack pages to the virtual address space
+  for (int i = 0; i < num_stack_pages; i++){
+    address_t vpage_addr = 0xffffe000 - (i * page_size);
+    word_t pte = page_frames[num_exec_pages + i] | 0x3ff;
+    set_pte((upt_entry_t*) process->pt_ptr, vpage_addr, pte);
+  }
+
   
   // adding process info to the process list
-  process_info_s* process = heap_alloc(sizeof(*process));
   process->pid = next_ROM;
-  process->base = addr;
-  process->limit = addr + 0x8000;
-  process->sp = addr + 0x8000;
-  process->pc = addr;
-  
+  process->page_frames_base = page_frames;
+  process->sp = 0xfffff000; 
+  process->pc = 0x80000000;
+  process->curr_page_idx = 0;
+  process->num_page_frames = num_pages;
  
   curr_process = process;
   CIRC_INSERT(process_head, process);
 
   /* Jump to the copied code at the kernel limit / program base. */
+  print("Running program...\n");
   jump_to_next_ROM(curr_process);
 }
 
@@ -253,8 +333,11 @@ void run_programs () {
 void end_process(){
   
   print("Ending current process...");
-  // free the RAM block
-  ram_free(curr_process->base);
+  // free the RAM blocks
+  for (int i = 0; i < curr_process->num_page_frames; i++){
+    ram_free(curr_process->page_frames_base[i]);
+  }
+
   // preserve the local pointer of the prcoess being removed
   process_info_s* tmp = curr_process; 
   // update current process to the next one
@@ -268,6 +351,7 @@ void end_process(){
           syscall_handler_halt();
   }else{
      CIRC_REMOVE(process_head, tmp);
+     heap_free(tmp);
   }
   
   
@@ -285,9 +369,9 @@ void end_process(){
 
 void update_curr_process(address_t sp, address_t pc){
 
-        curr_process->sp = sp + curr_process->base;
-        curr_process->pc = pc + curr_process->base;
-
+        curr_process->curr_page_idx = (int)(pc / page_size);
+        curr_process->sp = sp;
+        curr_process->pc = pc;
 }
 
 void alarm_next_program(){
@@ -312,14 +396,101 @@ address_t get_base(){
   if (curr_process->pc == 0){
     curr_process = process_head->next;
   }
-      return  curr_process->base;
+      return  curr_process->page_frames_base[curr_process->curr_page_idx];
 }
 
 address_t get_limit(){
   if (curr_process->pc == 0){
     curr_process = process_head->next;
   }
-  return  curr_process->limit;
+  return  curr_process->page_frames_base[curr_process->curr_page_idx] + page_size;
+}
+
+
+void zero_page (address_t page) {
+
+  for (word_t* current = (word_t*)page; current < (word_t*)(page + WORDS_PER_PAGE); current++) {
+    *current = 0;
+  }
+  
+}
+
+/* Make a new upper page-table, zeroing it out.  It is an array of upper page-table entries. */
+upt_entry_t* create_upt () {
+  
+  address_t page_frame = page_alloc();
+  zero_page(page_frame);
+  return (upt_entry_t*)page_frame;
+
+}
+
+void set_pte (upt_entry_t* upt, address_t vpage_addr, word_t pte) {
+  
+  /* Index into the UPT. */
+  word_t upt_index = UPT_INDEX(vpage_addr);
+
+  /* Does that entry lead to a LPT block? */
+  if (upt[upt_index] == 0) {
+
+    /* No, so create it. */
+    address_t page_frame = page_alloc();
+    zero_page(page_frame);
+    upt[upt_index] = page_frame | 0x3ff;
+    
+  }
+
+  /* Index into the LPT. */
+  pte_t* lpt       = (pte_t*)(upt[upt_index] & 0xfffff000);
+  word_t lpt_index = LPT_INDEX(vpage_addr);
+  lpt[lpt_index]   = pte;
+
+}
+
+/* Find the last entry in the device table and return a pointer to it. */
+dt_entry_s* find_last_device () {
+
+  /* Iterate through the device table until the last entry is found. */
+  dt_entry_s* current = device_table_base;
+  dt_entry_s* prev    = NULL;
+  while (current->type != none_device_code) {
+    prev = current;
+    current++;
+  }
+
+  /* Return the last valid device table entry. */
+  return prev;
+  
+}
+
+/* Make the first page table, mapping the kernel's space. */
+upt_entry_t* create_kernel_upt () {
+
+  /* Create an empty page table to start. */
+  upt_entry_t* upt = create_upt();
+
+  /* Loop through all of the pages used in the physical address space, first base to last limit. */
+  address_t base              = 0x1000;
+  address_t limit             = find_last_device()->limit;
+  word_t    pte_metadata_bits = PTE_MAPPED_BIT | PTE_RESIDENT_BIT | PTE_SREAD_BIT | PTE_SWRITE_BIT | PTE_SEXEC_BIT;
+  for (address_t current = base; current < limit; current += BYTES_PER_PAGE) {
+
+    /* Map this virtual page to the physical page at the same address, setting metadata bits to make it usable. */
+    pte_t pte = current | pte_metadata_bits;
+    set_pte(upt, current, pte);
+   
+  }
+
+  return upt;
+
+}
+
+upt_entry_t* create_process_upt(upt_entry_t* kernel_upt) {
+  upt_entry_t* upt = create_upt();
+  for (int i = 0; i < (BYTES_PER_PAGE / BYTES_PER_WORD) / 2; i += BYTES_PER_WORD) {
+    upt[i] = kernel_upt[i];
+  }
+
+  return upt;
 }
 
 
