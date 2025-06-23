@@ -21,37 +21,35 @@
 * `loop.asm`  
     Runs a loop with 10,000 iterations to test the alarm interrupt.
 
+
+
 ## Getting Fivish Simulator
 
 To begin, you'll need to obtain the Fivish assembler and simulator.
 
 **Clone the Repository:**
     On your system, use Git to clone a copy of the Fivish repository:
-    ```bash
-    git clone git@gitlab.com:amherst-college/sfkaplan_grp/fivish.git
+    ```
+    $ git clone git@gitlab.com:amherst-college/sfkaplan_grp/fivish.git
     ```
 
 **Build the Source Code:**
     Navigate into the `assembler` and `simulator` directories within the cloned repository and build their respective source code.
 
-    ```bash
     cd fivish/assembler
     javac *.java
     cd ../simulator
     javac -cp jline.jar *.java
     cd ..
-    ```
 
 **Create Symbolic Links (Optional, but Recommended):**
     To easily run the Fivish tools from any directory, create symbolic links from your local binaries directory (`~/.local/bin/`) to the `f-assemble` and `f-simulate` scripts.
 
-    ```bash
-    cd assembler
-    ln -s $PWD/f-assemble ~/.local/bin/
-    cd ../simulator
-    ln -s $PWD/f-simulate ~/.local/bin/
-    cd ../..
-    ```
+     $ cd assembler
+     $ ln -s $PWD/f-assemble ~/.local/bin/
+     $ cd ../simulator
+     $ ln -s $PWD/f-simulate ~/.local/bin/
+     $ cd ../..
 
 ## Build and Run
 
@@ -59,25 +57,25 @@ Download all the files into your directory. Then...
 
 **Assemble the files:**
 ```
-(sys2) $ f-assemble bios.asm
-(sys2) $ f-assemble loop.asm
-(sys2) $ f-assemble init.asm
+ $ f-assemble bios.asm
+ $ f-assemble loop.asm
+ $ f-assemble init.asm
 ```
 
 **Build the kernel:**
 ```
-(sys2) $ f-build combo.vmx kernel-stub.asm kernel.c
+ $ f-build combo.vmx kernel-stub.asm kernel.c
 ```
 
 **Run the simulation:**
 ```
-(sys2) $ f-simulate bios.vmx combo.vmx loop.vmx 
+ $ f-simulate bios.vmx combo.vmx loop.vmx 
 ```
 
 **Adjust RAM space:**
 ```
-(sys2) $ cd fivish/simulator
-(sys2) $ vim f-simulate
+ $ cd fivish/simulator
+ $ vim f-simulate
 ```
 
 Set the field `mainMemoryPages` to `64` to enable concurrent running of test programs
