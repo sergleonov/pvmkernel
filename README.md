@@ -21,6 +21,38 @@
 * `loop.asm`  
     Runs a loop with 10,000 iterations to test the alarm interrupt.
 
+## Getting Fivish Simulator
+
+To begin, you'll need to obtain the Fivish assembler and simulator.
+
+**Clone the Repository:**
+    On your system, use Git to clone a copy of the Fivish repository:
+    ```bash
+    git clone git@gitlab.com:amherst-college/sfkaplan_grp/fivish.git
+    ```
+
+**Build the Source Code:**
+    Navigate into the `assembler` and `simulator` directories within the cloned repository and build their respective source code.
+
+    ```bash
+    cd fivish/assembler
+    javac *.java
+    cd ../simulator
+    javac -cp jline.jar *.java
+    cd ..
+    ```
+
+**Create Symbolic Links (Optional, but Recommended):**
+    To easily run the Fivish tools from any directory, create symbolic links from your local binaries directory (`~/.local/bin/`) to the `f-assemble` and `f-simulate` scripts.
+
+    ```bash
+    cd assembler
+    ln -s $PWD/f-assemble ~/.local/bin/
+    cd ../simulator
+    ln -s $PWD/f-simulate ~/.local/bin/
+    cd ../..
+    ```
+
 **Build and Run**
 
 Download all the files into your directory. Then...
