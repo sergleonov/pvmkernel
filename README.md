@@ -36,11 +36,11 @@ To begin, you'll need to obtain the Fivish assembler and simulator.
 **Build the Source Code:**
     Navigate into the `assembler` and `simulator` directories within the cloned repository and build their respective source code.
 
-    cd fivish/assembler
-    javac *.java
-    cd ../simulator
-    javac -cp jline.jar *.java
-    cd ..
+    $ cd fivish/assembler
+    $ javac *.java
+    $ cd ../simulator
+    $ javac -cp jline.jar *.java
+    $ cd ..
 
 **Create Symbolic Links (Optional, but Recommended):**
     To easily run the Fivish tools from any directory, create symbolic links from your local binaries directory (`~/.local/bin/`) to the `f-assemble` and `f-simulate` scripts.
