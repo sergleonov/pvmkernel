@@ -191,16 +191,6 @@ should be written into its own `.c` file*, and I will merge them once first vers
 - [ ] Write stub code to transition into virtual addressing for the kernel by using the page table created by `map_all_devices()`. - **kbarrett27**
 - [ ] Choose a kernel from Project-2 as a starting point to which to add these functions. - **Teamwork!**
 
-## Tasks
-
-| Task | Team |
-|------|-------------|
-| Write the high-level `map_all_devices()` to create the page table of identity mappings | Madi + Deshan |
-| Write `page_alloc()` (as a modified `RAM_alloc()` from Project-2?) | Crawford + Sergei |
-| Write `zero_page()` | Luis Arciniega |
-| Write proper versions of the above functions that handle errors correctly | Sherlyn, Mayisa and Lindsay |
-| Write stub code to transition into virtual addressing for the kernel | Kaleb Barrett |
-| Choose a kernel from Project-2 as a starting point | Teamwork! |
 
 ## Team
 
