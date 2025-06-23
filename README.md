@@ -53,32 +53,32 @@ To begin, you'll need to obtain the Fivish assembler and simulator.
     cd ../..
     ```
 
-**Build and Run**
+## Build and Run
 
 Download all the files into your directory. Then...
 
 **Assemble the files:**
-
+```
 (sys2) $ f-assemble bios.asm
 (sys2) $ f-assemble loop.asm
 (sys2) $ f-assemble init.asm
-
+```
 
 **Build the kernel:**
-
+```
 (sys2) $ f-build combo.vmx kernel-stub.asm kernel.c
-
+```
 
 **Run the simulation:**
-
+```
 (sys2) $ f-simulate bios.vmx combo.vmx loop.vmx 
-
+```
 
 **Adjust RAM space:**
-
+```
 (sys2) $ cd fivish/simulator
 (sys2) $ vim f-simulate
-
+```
 
 Set the field `mainMemoryPages` to `64` to enable concurrent running of test programs
 
