@@ -236,4 +236,3 @@ should be written into its own `.c` file*, and I will merge them once first vers
 | Sherlyn Saavedra | ssaavedra27@amherst.edu |
 | Luis Arciniega | larciniega27@amherst.edu |
 
-ahan27@amherst.edu, ddawson27@amherst.edu, ddemel27@amherst.edu, kbarrett27@amherst.edu, larciniega27@amherst.edu, lward25@amherst.edu, mbailey26@amherst.edu, mgudin27@amherst.edu, mtasnim27@amherst.edu, sfkaplan@amherst.edu, sleonov27@amherst.edu, ssaavedra27@amherst.edu
